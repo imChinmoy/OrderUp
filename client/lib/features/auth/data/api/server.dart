@@ -1,0 +1,90 @@
+import 'dart:convert';
+import 'package:client/features/auth/data/models/session_model.dart';
+import 'package:client/features/auth/domain/failures/auth_failure.dart';
+import 'package:http/http.dart' as http;
+
+
+class ServerData {
+  final http.Client client;
+  final String baseUrl;
+  ServerData({
+    required this.client,
+    this.baseUrl = 'http://localhost:3000/api',
+  });
+  Future<SessionModel> login(String email, String password) async {
+    
+    try {
+      final res = await client.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email, 'password': password}),
+      );
+
+      if (res.statusCode == 200) {
+        return SessionModel.fromJson(json.decode(res.body));
+      } else if (res.statusCode == 400) {
+        throw InvalidCredentialsFailure();
+      } else {
+        final error = json.decode(res.body);
+        throw ServerFailure(error['error'] ?? 'Login failed');
+      }
+    } 
+    catch (e) {
+      if (e is AuthFailure) rethrow;
+      throw NetworkFailure();
+    }
+  }
+
+  Future<SessionModel> register({ required String email, required String password, required String name, required String role}) async {
+    try{
+      final res = await client.post(
+        Uri.parse('$baseUrl/register'),
+        headers:{ 'Content-type' : 'application/json'},
+        body:json.encode({
+          'email': email,
+          'password': password,
+          'name': name,
+          'role': role
+        })
+      );
+      if(res.statusCode == 200) return SessionModel.fromJson(json.decode(res.body));
+      else if(res.statusCode == 400) throw InvalidCredentialsFailure();
+      else{
+        final error = json.decode(res.body);
+        throw ServerFailure(error['error'] ?? 'Register failed');
+      }
+    }
+    catch(e){
+      if(e is AuthFailure) rethrow;
+      throw NetworkFailure();
+    }
+  }
+  
+  Future<SessionModel> getCurrentUser(String token) async {
+    try {
+      final response = await client.get(
+        Uri.parse('$baseUrl/auth/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return SessionModel.fromJson(data['user']);
+      } 
+      else if (response.statusCode == 401) {
+        throw UnauthorizedFailure();
+      } 
+      else {
+        throw ServerFailure('Failed to get user');
+      }
+    } catch (e) {
+      if (e is AuthFailure) rethrow;
+      throw NetworkFailure();
+    }
+  }
+
+
+}

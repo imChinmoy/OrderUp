@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-import './db.js';
+import authRouter from './routes/auth.route.js';
 import connectDB from './db.js';
 
 const app = express();
@@ -11,9 +11,8 @@ const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('Hello from the server');
-});
+app.use('/api/auth', authRouter);
+// app.use('/api/meals', mealsRouter); 
 
 app.listen(PORT, () => {
     connectDB();
