@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'core/colors.dart';
@@ -9,6 +10,8 @@ void main() {
       child: MyApp(),
     ),
   );
+
+
 }
 
 class MyApp extends StatelessWidget {

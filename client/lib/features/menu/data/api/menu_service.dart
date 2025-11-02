@@ -1,0 +1,41 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../models/menu_item_model.dart';
+import 'package:client/core/api_endpoints.dart';
+
+
+abstract class MenuService {
+  Future<List<MenuItemModel>> fetchMenuItems();
+  Future<List<MenuItemModel>> fetchTrendingMenuItems();
+}
+
+class MenuServiceImpl implements MenuService {
+  final http.Client client;
+
+  MenuServiceImpl(this.client);
+
+  @override
+  Future<List<MenuItemModel>> fetchMenuItems() async {
+
+    final response = await client.get(Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.menu}'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      return jsonList.map((json) => MenuItemModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load menu items');
+    }
+  }
+
+  @override
+  Future<List<MenuItemModel>> fetchTrendingMenuItems() async {
+
+    final response = await client.get(Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.trending}'));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      return jsonList.map((json) => MenuItemModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load trending items');
+    }
+  }
+}
