@@ -1,38 +1,42 @@
 import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
-import '../widgets/custom_text_field.dart';
-import 'signup_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/login_provider.dart';
+import '../widgets/custom_text_field.dart';
+import '../providers/signup_provider.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class SignupScreen extends ConsumerStatefulWidget {
+  const SignupScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _SignupScreenState extends ConsumerState<SignupScreen> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  String _selectedRole = 'student';
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    ref
-        .read(loginProvider.notifier)
-        .login(_emailController.text, _passwordController.text);
+  void _handleSignup() {
+    final notifier = ref.read(signupProvider.notifier);
+    notifier.signup(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final loginState = ref.watch(loginProvider);
+    final signupState = ref.watch(signupProvider);
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       body: SafeArea(
@@ -42,7 +46,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
                 const SizedBox(height: 20),
+
                 Container(
                   padding: const EdgeInsets.all(32),
                   child: Column(
@@ -68,7 +77,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 24),
 
                       const Text(
-                        'Welcome Back',
+                        'Create Account',
                         style: TextStyle(
                           color: AppColors.white,
                           fontSize: 28,
@@ -77,10 +86,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Sign in to continue ordering',
+                        'Sign up to start ordering delicious food',
                         style: TextStyle(color: AppColors.grey, fontSize: 14),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
+
+                      CustomTextField(
+                        hintText: 'Full Name',
+                        icon: Icons.person_outline,
+                        controller: _nameController,
+                      ),
+                      const SizedBox(height: 16),
 
                       CustomTextField(
                         hintText: 'Email Address',
@@ -109,70 +126,100 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
 
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              color: AppColors.mainOrange,
-                              fontSize: 14,
-                            ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryDark,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: DropdownButton<String>(
+                          value: _selectedRole,
+                          isExpanded: true,
+                          underline: const SizedBox(),
+                          dropdownColor: AppColors.primaryDark,
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                            color: AppColors.grey,
                           ),
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 16,
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'student',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.school,
+                                    color: AppColors.grey,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text('Student'),
+                                ],
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'admin',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.admin_panel_settings,
+                                    color: AppColors.grey,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text('Admin'),
+                                ],
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedRole = value!;
+                            });
+                          },
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
 
                       SizedBox(
                         width: double.infinity,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: loginState.isLoading
-                              ? const Center(
+                        child: ElevatedButton(
+                          onPressed: signupState.isLoading
+                              ? null
+                              : _handleSignup,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.mainOrange,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 8,
+                          ),
+                          child: signupState.isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
                                   child: CircularProgressIndicator(
-                                    color: AppColors.mainOrange,
+                                    strokeWidth: 2,
+                                    color: AppColors.white,
                                   ),
                                 )
-                              : ElevatedButton(
-                                  onPressed: _handleLogin,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.mainOrange,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 8,
-                                  ),
-                                  child: const Text(
-                                    'Sign In',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.white,
-                                    ),
+                              : const Text(
+                                  'Sign Up',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.white,
                                   ),
                                 ),
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      if (loginState.error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            loginState.error!,
-                            style: const TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-
                       Row(
                         children: [
                           Expanded(
@@ -241,23 +288,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            "Don't have an account? ",
+                            'Already have an account? ',
                             style: TextStyle(
                               color: AppColors.grey,
                               fontSize: 14,
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SignupScreen(),
-                                ),
-                              );
-                            },
+                            onTap: () => Navigator.pop(context),
                             child: const Text(
-                              'Sign Up',
+                              'Sign In',
                               style: TextStyle(
                                 color: AppColors.mainOrange,
                                 fontSize: 14,
