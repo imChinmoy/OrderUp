@@ -38,7 +38,7 @@ export const registerHandler = async (req, res) => {
       email,
       password,
       name,
-      role: role || 'user',
+      role: role || 'student',
     });
     await newUser.save();
 
