@@ -4,6 +4,7 @@ import '../widgets/custom_text_field.dart';
 import 'signup_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/login_provider.dart';
+import '../../../menu/presentation/screens/home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -43,6 +44,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                      );
+                    },
+                    child: const Text(
+                      "Skip",
+                      style: TextStyle(color: AppColors.textGray, fontSize: 14),
+                    ),
+                  ),
+                ),
                 Container(
                   padding: const EdgeInsets.all(32),
                   child: Column(
