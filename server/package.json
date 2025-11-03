@@ -8,9 +8,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "build": "babel src -d dist --copy-files",
-    "lint": "eslint src --fix",
-    "prepare": "npm run lint && npm run build"
   },
   "keywords": [],
   "author": "",
