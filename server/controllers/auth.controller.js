@@ -38,7 +38,7 @@ export const registerHandler = async (req, res) => {
       email,
       password,
       name,
-      role: role || 'user',
+      role: role || 'student',
     });
     await newUser.save();
 
@@ -56,7 +56,7 @@ export const registerHandler = async (req, res) => {
     });
   } catch (error) {
     console.error('Error during registration:', error);
-    return res.status(500).json({ error: 'Internal server error.' });
+    return res.status(500).json(error);
   }
 };
 

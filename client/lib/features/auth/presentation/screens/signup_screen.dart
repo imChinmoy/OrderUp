@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/custom_text_field.dart';
-import '../providers/signup_provider.dart';
+import '../providers/auth_provider.dart'; // contains registerProvider
+import '../../../menu/presentation/screens/home_screen.dart';
+
+final signupParamsProvider = StateProvider<Map<String, String>?>( (ref) => null);
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -10,7 +13,6 @@ class SignupScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
-
 class _SignupScreenState extends ConsumerState<SignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -27,16 +29,23 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   void _handleSignup() {
-    final notifier = ref.read(signupProvider.notifier);
-    notifier.signup(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
+    final params = {
+      'email': _emailController.text.trim(),
+      'password': _passwordController.text.trim(),
+      'name': _nameController.text.trim(),
+      'role': _selectedRole,
+    };
+    ref.read(signupParamsProvider.notifier).state = params;
   }
 
   @override
   Widget build(BuildContext context) {
-    final signupState = ref.watch(signupProvider);
+    final signupParams = ref.watch(signupParamsProvider);
+    final signupAsync = signupParams == null
+        ? const AsyncValue.data(null)
+        : ref.watch(registerProvider(signupParams));
+
+
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       body: SafeArea(
@@ -51,7 +60,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(height: 20),
-
                 Container(
                   padding: const EdgeInsets.all(32),
                   child: Column(
@@ -62,20 +70,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.mainOrange,
                           borderRadius: BorderRadius.circular(40),
-                          /* boxShadow: [
-                              BoxShadow(
-                                color: AppColors.mainOrange.withOpacity(0.5),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ], */
                         ),
                         child: const Center(
                           child: Text('🍔', style: TextStyle(fontSize: 40)),
                         ),
                       ),
                       const SizedBox(height: 24),
-
                       const Text(
                         'Create Account',
                         style: TextStyle(
@@ -91,14 +91,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-
                       CustomTextField(
                         hintText: 'Full Name',
                         icon: Icons.person_outline,
                         controller: _nameController,
                       ),
                       const SizedBox(height: 16),
-
                       CustomTextField(
                         hintText: 'Email Address',
                         icon: Icons.email_outlined,
@@ -106,7 +104,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 16),
-
                       CustomTextField(
                         hintText: 'Password',
                         icon: Icons.lock_outline,
@@ -127,7 +124,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       Container(
                         decoration: BoxDecoration(
                           color: AppColors.primaryDark,
@@ -185,11 +181,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
-
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: signupState.isLoading
+                          onPressed: signupAsync
+                          .isLoading
                               ? null
                               : _handleSignup,
                           style: ElevatedButton.styleFrom(
@@ -200,7 +196,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             ),
                             elevation: 8,
                           ),
-                          child: signupState.isLoading
+                          child: signupAsync.isLoading
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
@@ -220,6 +216,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      if (signupAsync.hasError)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            signupAsync.error.toString(),
+                            style: const TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
                       Row(
                         children: [
                           Expanded(
@@ -242,7 +249,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-
                       Row(
                         children: [
                           Expanded(
@@ -283,7 +289,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -311,7 +316,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
                 Center(
                   child: RichText(
                     textAlign: TextAlign.center,

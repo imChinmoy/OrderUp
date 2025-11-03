@@ -1,10 +1,12 @@
+import 'package:client/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../widgets/custom_text_field.dart';
 import 'signup_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/login_provider.dart';
 import '../../../menu/presentation/screens/home_screen.dart';
+
+final loginParamsProvider = StateProvider<Map<String, String>?>((ref) => null);
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -26,14 +28,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _handleLogin() {
-    ref
-        .read(loginProvider.notifier)
-        .login(_emailController.text, _passwordController.text);
+    final params = {
+      'email': _emailController.text.trim(),
+      'password': _passwordController.text.trim(),
+    };
+    ref.read(loginParamsProvider.notifier).state = params;
   }
 
   @override
   Widget build(BuildContext context) {
-    final loginState = ref.watch(loginProvider);
+    final loginParams = ref.watch(loginParamsProvider);
+    final loginAsync = loginParams == null
+        ? const AsyncValue.data(null)
+        : ref.watch(loginProvider(loginParams));
+
+    // On login success navigate automatically
+    loginAsync.whenData((session) {
+      if (session != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+        ref.read(loginParamsProvider.notifier).state =
+            null; // Reset params to avoid navigating repeatedly
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       body: SafeArea(
@@ -69,20 +89,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.mainOrange,
                           borderRadius: BorderRadius.circular(40),
-                          /* boxShadow: [
-                              BoxShadow(
-                                color: AppColors.mainOrange.withOpacity(0.5),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ], */
                         ),
                         child: const Center(
                           child: Text('🍔', style: TextStyle(fontSize: 40)),
                         ),
                       ),
                       const SizedBox(height: 24),
-
                       const Text(
                         'Welcome Back',
                         style: TextStyle(
@@ -93,11 +105,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Sign in to continue ordering',
+                        'Login to continue ordering',
                         style: TextStyle(color: AppColors.grey, fontSize: 14),
                       ),
                       const SizedBox(height: 32),
-
                       CustomTextField(
                         hintText: 'Email Address',
                         icon: Icons.email_outlined,
@@ -105,7 +116,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 16),
-
                       CustomTextField(
                         hintText: 'Password',
                         icon: Icons.lock_outline,
@@ -126,7 +136,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
@@ -141,54 +150,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
                       SizedBox(
                         width: double.infinity,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: loginState.isLoading
-                              ? const Center(
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.mainOrange,
+                        child: loginAsync.isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.mainOrange,
+                                ),
+                              )
+                            : ElevatedButton(
+                                onPressed: _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.mainOrange,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
                                   ),
-                                )
-                              : ElevatedButton(
-                                  onPressed: _handleLogin,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.mainOrange,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 8,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Text(
-                                    'Sign In',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.white,
-                                    ),
+                                  elevation: 8,
+                                ),
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.white,
                                   ),
                                 ),
-                        ),
+                              ),
                       ),
                       const SizedBox(height: 24),
-
-                      if (loginState.error != null)
+                      if (loginAsync.hasError)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: Text(
-                            loginState.error!,
+                            loginAsync.error.toString(),
                             style: const TextStyle(
                               color: Colors.redAccent,
                               fontSize: 14,
                             ),
                           ),
                         ),
-
                       Row(
                         children: [
                           Expanded(
@@ -211,7 +214,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-
                       Row(
                         children: [
                           Expanded(
@@ -252,7 +254,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -284,28 +285,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                Center(
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                      style: TextStyle(color: AppColors.grey, fontSize: 12),
-                      children: [
-                        TextSpan(text: 'By continuing, you agree to our '),
-                        TextSpan(
-                          text: 'Terms of Service',
-                          style: TextStyle(color: AppColors.mainOrange),
-                        ),
-                        TextSpan(text: ' and '),
-                        TextSpan(
-                          text: 'Privacy Policy',
-                          style: TextStyle(color: AppColors.mainOrange),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],
