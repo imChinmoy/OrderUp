@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:client/features/admin/presentation/screens/admin_screen.dart';
 import 'package:client/features/auth/presentation/providers/auth_provider.dart';
+import 'package:client/features/menu/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../widgets/custom_text_field.dart';
@@ -64,7 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
+            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
           );
         }
 
@@ -88,7 +89,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
                       );
                     },
                     child: const Text(
