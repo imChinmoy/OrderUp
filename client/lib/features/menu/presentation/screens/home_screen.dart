@@ -4,11 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../domain/entities/menu_item_entity.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+
+class HomeScreenContent extends ConsumerStatefulWidget {
+  const HomeScreenContent({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreenContent> createState() => _HomeScreenContentState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
@@ -31,7 +32,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           return _buildContent(context, menuItems, trendingState);
         },
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      data: (menuItems) => _buildContent(context, menuItems),
+      error: (_, __) => _buildContent(context, placeholderMenu),
     );
   }
 
