@@ -1,4 +1,5 @@
 import 'package:client/features/menu/presentation/providers/menu_provider.dart';
+import 'package:client/features/menu/presentation/screens/food_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
@@ -335,63 +336,73 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
   }
 
   Widget _buildFoodCard(MenuItemEntity item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF29293A),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.30),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: ImageWithShimmer(
-              imageUrl: item.imageUrl,
-              height: 160,
-              width: double.infinity,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => FoodDetailScreen(item: item)),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF29293A),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.30),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.white,
-                    letterSpacing: 0.3,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  item.category ?? '',
-                  style: const TextStyle(color: Colors.white54, fontSize: 14),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  "₹${item.price}",
-                  style: const TextStyle(
-                    color: Colors.deepOrange,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
+              child: ImageWithShimmer(
+                imageUrl: item.imageUrl,
+                height: 160,
+                width: double.infinity,
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.white,
+                      letterSpacing: 0.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.category ?? '',
+                    style: const TextStyle(color: Colors.white54, fontSize: 14),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "₹${item.price}",
+                    style: const TextStyle(
+                      color: Colors.deepOrange,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
