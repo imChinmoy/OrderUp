@@ -5,20 +5,17 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF16161F),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 30),
-              _buildProfileSection(),
-              const SizedBox(height: 30),
-              _buildMenuOptions(context),
-              const SizedBox(height: 20),
-            ],
-          ),
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            const SizedBox(height: 30),
+            _buildProfileSection(),
+            const SizedBox(height: 30),
+            _buildMenuOptions(context),
+            const SizedBox(height: 100), // Extra padding for bottom nav bar
+          ],
         ),
       ),
     );
@@ -30,16 +27,7 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white,
-              size: 20,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+          const SizedBox(width: 48), // Spacer to center title
           const Text(
             "Profile",
             style: TextStyle(
@@ -79,8 +67,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 image: const DecorationImage(
                   image: NetworkImage(
-                    //temporary profile picture hai for now
-                    //PROFILE PICTURE SECION
                     "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
                   ),
                   fit: BoxFit.cover,
@@ -110,9 +96,8 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        //USERNAME COMES HERE
         const Text(
-          "Sample Usernamn",
+          "Sample person",
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -121,7 +106,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          "saampl@gmail.com",
+          "example@gmail.com",
           style: TextStyle(
             color: Colors.white.withOpacity(0.6),
             fontSize: 14,
@@ -205,14 +190,7 @@ class ProfileScreen extends StatelessWidget {
               // Navigate to order history
             },
           ),
-          _buildMenuItem(
-            icon: Icons.favorite_border,
-            title: "Favorites",
-            subtitle: "Your saved favorite items",
-            onTap: () {
-              // Navigate to favorites
-            },
-          ),
+
           _buildMenuItem(
             icon: Icons.notifications_outlined,
             title: "Notifications",

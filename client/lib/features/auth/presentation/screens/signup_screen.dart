@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:client/features/admin/presentation/screens/admin_screen.dart';
+import 'package:client/features/menu/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,7 +65,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
+            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
           );
         }
         ref.read(signupParamsProvider.notifier).state = null;

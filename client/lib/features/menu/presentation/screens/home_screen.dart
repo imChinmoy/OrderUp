@@ -1,18 +1,17 @@
 import 'package:client/features/menu/presentation/providers/menu_provider.dart';
-import 'package:client/features/profile/features/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/menu_item_entity.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+
+class HomeScreenContent extends ConsumerStatefulWidget {
+  const HomeScreenContent({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreenContent> createState() => _HomeScreenContentState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedBottomIndex = 0;
+class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
   //abhi ke liye bas sample data daala hai, until the backend is ready, tab tak, i am taking data from here
   List<MenuItemEntity> get placeholderMenu => [
     MenuItemEntity(
@@ -60,16 +59,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final menuState = ref.watch(menuProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF16161F),
-      body: menuState.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Colors.orange),
-        ),
-        data: (menuItems) => _buildContent(context, menuItems),
-        error: (_, __) => _buildContent(context, placeholderMenu),
+    return menuState.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: Colors.orange),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      data: (menuItems) => _buildContent(context, menuItems),
+      error: (_, __) => _buildContent(context, placeholderMenu),
     );
   }
 
@@ -106,6 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             const SizedBox(height: 16),
             _buildFoodGrid(menuItems),
+            const SizedBox(height: 80), // Extra padding for bottom nav bar
           ],
         ),
       ),
@@ -291,14 +287,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             SizedBox(height: 4),
-            /* Text(
-              "Items",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ), */
           ],
         ),
       ),
@@ -433,113 +421,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  // ---------------------------
-  // BOTTOM NAVIGATION BAR
-  // ---------------------------
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F2E),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildNavItem(Icons.home, "Home", 0),
-              _buildNavItem(Icons.notifications_outlined, "Notif", 1),
-              _buildFloatingActionButton(),
-              _buildNavItem(Icons.favorite_border, "Favourites", 2),
-              _buildNavItem(Icons.person_outline, "Profile", 3),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    final isSelected = _selectedBottomIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedBottomIndex = index;
-        });
-        
-        
-        if (index == 3) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ProfileScreen(),
-            ),
-          );
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? Colors.deepOrange
-                  : Colors.white.withOpacity(0.4),
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? Colors.deepOrange
-                    : Colors.white.withOpacity(0.4),
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepOrange.withOpacity(0.5),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 28),
     );
   }
 }
