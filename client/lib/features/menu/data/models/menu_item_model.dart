@@ -8,6 +8,7 @@ class MenuItemModel extends MenuItemEntity {
     required double price,
     required String imageUrl,
     bool isTrending = false,
+    required String? category,
   }) : super(
          id: id,
          name: name,
@@ -25,6 +26,7 @@ class MenuItemModel extends MenuItemEntity {
       price: (json['price'] as num).toDouble(),
       imageUrl: json['imageUrl'],
       isTrending: json['isTrending'] ?? false,
+      category: json['category'],
     );
   }
 
@@ -36,6 +38,7 @@ class MenuItemModel extends MenuItemEntity {
       'price': price,
       'imageUrl': imageUrl,
       'isTrending': isTrending,
+      'category': category,
     };
   }
 }

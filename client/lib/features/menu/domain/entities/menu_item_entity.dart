@@ -5,6 +5,7 @@ class MenuItemEntity {
   final double price;
   final String imageUrl;
   final bool isTrending;
+  final String? category;
 
   MenuItemEntity({
     required this.id,
@@ -13,5 +14,6 @@ class MenuItemEntity {
     required this.price,
     required this.imageUrl,
     this.isTrending = false,
+    this.category,
   });
 }

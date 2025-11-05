@@ -14,8 +14,8 @@ class ApiEndpoints {
   static const String signup = "/auth/register";
 
   // 🍽️ MENU ENDPOINTS
-  static const String menu = "/menu";
-  static const String trending = "/menu/trending";
+  static const String menu = "/items";
+  static const String trending = "/items/trending";
 
   // For fetching menu item by ID
   static String menuById(String id) => "/menu/$id";
