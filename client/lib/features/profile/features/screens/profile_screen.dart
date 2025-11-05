@@ -1,23 +1,44 @@
+import 'package:client/features/profile/features/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            const SizedBox(height: 30),
-            _buildProfileSection(),
-            const SizedBox(height: 30),
-            _buildMenuOptions(context),
-            const SizedBox(height: 100), // Extra padding for bottom nav bar
-          ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(profileProvider);
+
+    return profileAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, _) => Center(
+        child: Text(
+          "Failed to load profile",
+          style: TextStyle(color: Colors.red),
         ),
       ),
+      data: (user) {
+        final displayName = (user?['name'] ?? 'Guest User') as String;
+        final email = (user?['email'] ?? 'No email found') as String;
+        final avatarUrl =
+            (user?['avatar'] ??
+                    "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg");
+
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 30),
+                _buildProfileSection(displayName, email, avatarUrl),
+                const SizedBox(height: 30),
+                _buildMenuOptions(context),
+                const SizedBox(height: 100), // Extra padding for bottom nav bar
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -42,16 +63,14 @@ class ProfileScreen extends StatelessWidget {
               color: Colors.white,
               size: 24,
             ),
-            onPressed: () {
-              // Navigate to settings
-            },
+            onPressed: () {},
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProfileSection() {
+  Widget _buildProfileSection(String name, String email, String avatarUrl) {
     return Column(
       children: [
         Stack(
@@ -61,14 +80,9 @@ class ProfileScreen extends StatelessWidget {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.deepOrange,
-                  width: 3,
-                ),
-                image: const DecorationImage(
-                  image: NetworkImage(
-                    "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
-                  ),
+                border: Border.all(color: Colors.deepOrange, width: 3),
+                image: DecorationImage(
+                  image: NetworkImage(avatarUrl),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -81,10 +95,7 @@ class ProfileScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.deepOrange,
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFF16161F),
-                    width: 3,
-                  ),
+                  border: Border.all(color: const Color(0xFF16161F), width: 3),
                 ),
                 child: const Icon(
                   Icons.camera_alt,
@@ -96,9 +107,9 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        const Text(
-          "Sample person",
-          style: TextStyle(
+        Text(
+          name,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -106,11 +117,8 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          "example@gmail.com",
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.6),
-            fontSize: 14,
-          ),
+          email,
+          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
         ),
         const SizedBox(height: 20),
         Row(
@@ -151,10 +159,7 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.6),
-            fontSize: 12,
-          ),
+          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
         ),
       ],
     );
@@ -169,51 +174,37 @@ class ProfileScreen extends StatelessWidget {
             icon: Icons.person_outline,
             title: "Edit Profile",
             subtitle: "Update your personal information",
-            onTap: () {
-              // Navigate to edit profile
-            },
+            onTap: () {},
           ),
-
           _buildMenuItem(
             icon: Icons.payment_outlined,
             title: "Payment Methods",
             subtitle: "Add or remove payment methods",
-            onTap: () {
-              // Navigate to payment methods
-            },
+            onTap: () {},
           ),
           _buildMenuItem(
             icon: Icons.shopping_bag_outlined,
             title: "Order History",
             subtitle: "View all your past orders",
-            onTap: () {
-              // Navigate to order history
-            },
+            onTap: () {},
           ),
-
           _buildMenuItem(
             icon: Icons.notifications_outlined,
             title: "Notifications",
             subtitle: "Manage notification preferences",
-            onTap: () {
-              // Navigate to notifications settings
-            },
+            onTap: () {},
           ),
           _buildMenuItem(
             icon: Icons.help_outline,
             title: "Help & Support",
             subtitle: "Get help and contact support",
-            onTap: () {
-              // Navigate to help
-            },
+            onTap: () {},
           ),
           _buildMenuItem(
             icon: Icons.info_outline,
             title: "About",
             subtitle: "App version and information",
-            onTap: () {
-              // Navigate to about
-            },
+            onTap: () {},
           ),
           const SizedBox(height: 10),
           _buildLogoutButton(context),
@@ -235,10 +226,7 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
           width: 48,
           height: 48,
@@ -246,11 +234,7 @@ class ProfileScreen extends StatelessWidget {
             color: Colors.deepOrange.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: Colors.deepOrange,
-            size: 24,
-          ),
+          child: Icon(icon, color: Colors.deepOrange, size: 24),
         ),
         title: Text(
           title,
@@ -311,11 +295,7 @@ class ProfileScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                Icon(Icons.logout, color: Colors.white, size: 20),
                 SizedBox(width: 8),
                 Text(
                   "Logout",
@@ -344,16 +324,11 @@ class ProfileScreen extends StatelessWidget {
           ),
           title: const Text(
             "Logout",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           content: const Text(
             "Are you sure you want to logout?",
-            style: TextStyle(
-              color: Colors.white70,
-            ),
+            style: TextStyle(color: Colors.white70),
           ),
           actions: [
             TextButton(
@@ -362,15 +337,13 @@ class ProfileScreen extends StatelessWidget {
               },
               child: const Text(
                 "Cancel",
-                style: TextStyle(
-                  color: Colors.white70,
-                ),
+                style: TextStyle(color: Colors.white70),
               ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                // Perform logout action
+                // Implement session clearing and navigation to login here
               },
               child: const Text(
                 "Logout",

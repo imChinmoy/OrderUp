@@ -1,3 +1,4 @@
+import 'package:client/features/menu/presentation/screens/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/features/menu/presentation/screens/home_screen.dart';
@@ -21,7 +22,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const HomeScreenContent(), // Home
+      const HomeNavigator(),  // Home
       const NotificationsScreen(), // Notifications
       const Center(child: Text('QR Scanner', style: TextStyle(color: Colors.white))), // QR Scanner placeholder
       const FavoritesScreen(), // Favorites
@@ -168,6 +169,31 @@ class FavoritesScreen extends StatelessWidget {
         'Favorites',
         style: TextStyle(color: Colors.white, fontSize: 24),
       ),
+    );
+  }
+}
+
+class HomeNavigator extends StatelessWidget {
+  const HomeNavigator({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      initialRoute: 'home',
+      onGenerateRoute: (RouteSettings settings) {
+        WidgetBuilder builder;
+        switch (settings.name) {
+          case 'home':
+            builder = (BuildContext _) => const HomeScreenContent();
+            break;
+          case 'search':
+            builder = (BuildContext _) => const SearchScreen();
+            break;
+          default:
+            throw Exception('Invalid route: ${settings.name}');
+        }
+        return MaterialPageRoute(builder: builder, settings: settings);
+      },
     );
   }
 }

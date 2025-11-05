@@ -1,0 +1,25 @@
+import 'dart:convert';
+import 'dart:developer' as dev;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:client/features/auth/data/datasource/hive_session_storage.dart';
+
+final profileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  final session = await HiveSessionStorage().getSession();
+
+  if (session == null) {
+    dev.log("No session found in Hive storage.");
+    return null;
+  }
+
+  dev.log("Session Token: ${session.token}");
+  dev.log("Session Raw User JSON: ${session.user}");
+
+  try {
+    final userMap = jsonDecode(session.user);
+    dev.log("Parsed user data: $userMap");
+    return userMap;
+  } catch (e) {
+    dev.log("Failed to parse session user JSON: $e");
+    return null;
+  }
+});
