@@ -8,6 +8,7 @@ import menuRoutes from './routes/menu.routes.js';
 import connectDB from './db.js';
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/payment.routes.js";
+import mlRoutes from "./routes/mlRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -39,6 +40,7 @@ app.use('/api/auth', authRouter);
 app.use('/api', menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/ml", mlRoutes); 
 
 server.listen(PORT,'0.0.0.0', () => {
     connectDB();
