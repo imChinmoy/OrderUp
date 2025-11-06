@@ -91,8 +91,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         context,
                         //TEMPORARY CHANGE
                         //TODO: Remove this later
-                        //MaterialPageRoute(builder: (_) => const AdminScreen()),
-                        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                        MaterialPageRoute(builder: (_) => const AdminScreen()),
+                        //MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
                       );
                     },
                     child: const Text(
