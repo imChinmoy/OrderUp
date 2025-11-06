@@ -24,6 +24,10 @@ class ApiEndpoints {
   static const String order = "/order";
   static String orderById(String id) => "/order/$id";
 
+  static const String payment = "/payment";
+  static const String createOrder = "/payment/create-order";
+  static const String verifyPayment = "/payment/verify-payment";
+
   // ⚙️ ADMIN ENDPOINTS
   static const String adminMenu = "/admin/menu";
   static String adminMenuById(String id) => "/admin/menu/$id";
