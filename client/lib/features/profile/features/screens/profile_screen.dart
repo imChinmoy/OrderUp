@@ -17,6 +17,7 @@ class ProfileScreen extends ConsumerWidget {
           style: TextStyle(color: Colors.red),
         ),
       ),
+      
       data: (user) {
         final displayName = (user?['name'] ?? 'Guest User') as String;
         final email = (user?['email'] ?? 'No email found') as String;

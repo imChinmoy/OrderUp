@@ -89,6 +89,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
+                        //TEMPORARY CHANGE
+                        //TODO: Remove this later
+                        //MaterialPageRoute(builder: (_) => const AdminScreen()),
                         MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
                       );
                     },

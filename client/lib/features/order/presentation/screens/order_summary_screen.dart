@@ -1,4 +1,4 @@
-import 'package:client/features/order/presentation/screens/payment_screen.dart';
+import 'package:client/features/payment/presentation/screens/razorpay_screen.dart';
 import 'package:flutter/material.dart';
 
 class OrderSummaryScreen extends StatelessWidget {
@@ -86,7 +86,7 @@ class OrderSummaryScreen extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => PaymentScreen(totalAmount: totalAmount),
+                builder: (_) => RazorpayScreen(totalAmount: totalAmount),
               ),
             );
             ScaffoldMessenger.of(context).showSnackBar(

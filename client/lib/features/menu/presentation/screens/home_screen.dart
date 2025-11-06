@@ -438,6 +438,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
+          //TODO: OVERFLOW FIX KARNA HAI
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -520,6 +521,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
 
   Widget _buildTrendingCard(MenuItemEntity item) {
     const double cardWidth = 240;
+    //final double cardWidth = MediaQuery.of(context).size.width * 0.6;
     const double imageRatio = 16 / 9;
     const double imageHeight = cardWidth / imageRatio;
 
@@ -546,6 +548,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
         ],
       ),
       child: Column(
+        //TODO: OVERFLOW FIX HARNA HAI
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [

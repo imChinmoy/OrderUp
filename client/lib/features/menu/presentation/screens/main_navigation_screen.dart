@@ -1,5 +1,6 @@
 import 'package:client/features/menu/presentation/screens/search_screen.dart';
 import 'package:client/features/order/presentation/screens/cart_screen.dart';
+import 'package:client/features/recommendations/presentation/screens/recommendation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/features/menu/presentation/screens/home_screen.dart';
@@ -10,7 +11,8 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() =>
+      _MainNavigationScreenState();
 }
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
@@ -23,9 +25,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const HomeNavigator(),  // Home
+      const HomeNavigator(), // Home
       const NotificationsScreen(), // Notifications
-      const Center(child: Text('QR Scanner', style: TextStyle(color: Colors.white))), // QR Scanner placeholder
+      const Center(
+        child: Text('Recommendations', style: TextStyle(color: Colors.white)),
+      ), // Placeholder
       const FavoritesScreen(), // Favorites
       const ProfileScreen(), // Profile
     ];
@@ -35,10 +39,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF16161F),
-      body: IndexedStack(
-        index: _selectedBottomIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _selectedBottomIndex, children: _screens),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -117,9 +118,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   Widget _buildFloatingActionButton() {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedBottomIndex = 2;
-        });
+        // Navigate to RecommendationScreen instead of changing tab
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const RecommendationScreen()),
+        );
       },
       child: Container(
         width: 56,
@@ -139,7 +142,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
             ),
           ],
         ),
-        child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 28),
+        child: const Icon(
+          Icons.lightbulb_outline,
+          color: Colors.white,
+          size: 28,
+        ),
       ),
     );
   }
