@@ -8,15 +8,18 @@ import {
   updateMenuItem,
   deleteMenuItem
 } from '../controllers/menuController.js';
+import { verifyToken, adminOnly } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.post('/items', createMenuItem);
+router.use(verifyToken);
+
+router.post('/items', adminOnly,  createMenuItem);
 router.get('/items', getAllItems);
 router.get('/items/trending', getTrendingItems);
 router.get('/items/category/:category', getItemsByCategory);
 router.get('/items/:id', getItemById);
-router.put('/items/:id', updateMenuItem);    
-router.delete('/items/:id', deleteMenuItem);
+router.put('/items/:id', adminOnly, updateMenuItem);    
+router.delete('/items/:id', adminOnly, deleteMenuItem);
 
 export default router;

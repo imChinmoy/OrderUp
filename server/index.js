@@ -8,6 +8,7 @@ import menuRoutes from './routes/menu.routes.js';
 import connectDB from './db.js';
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/payment.routes.js";
+import mlRoutes from "./routes/mlRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -20,13 +21,14 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("⚡ New client connected:", socket.id);
-
+   console.log("Handshake query:", socket.handshake);  
   socket.on("join", (role, userId) => {
     if (role === "admin") socket.join("admins");
     else if (role === "student") socket.join(userId);
   });
 
   socket.on("disconnect", () => {
+    
     console.log("Client disconnected:", socket.id);
   });
 });
@@ -38,6 +40,7 @@ app.use('/api/auth', authRouter);
 app.use('/api', menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/ml", mlRoutes); 
 
 server.listen(PORT,'0.0.0.0', () => {
     connectDB();
