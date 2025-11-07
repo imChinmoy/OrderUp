@@ -9,6 +9,8 @@ import connectDB from './db.js';
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import mlRoutes from "./routes/mlRoutes.js";
+import morgan from "morgan";
+import helmet from "helmet";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -34,7 +36,10 @@ io.on("connection", (socket) => {
 });
 export { io, server };
 
+app.use(helmet());
 app.use(express.json());
+app.use(morgan("dev"));
+app.disable("x-powered-by");
 
 app.use('/api/auth', authRouter);
 app.use('/api', menuRoutes);
