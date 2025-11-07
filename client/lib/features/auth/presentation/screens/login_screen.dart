@@ -50,7 +50,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         : ref.watch(loginProvider(loginParams));
     loginAsync.whenData((session) {
       if (session != null) {
-
         final user = jsonDecode(session.user);
 
         final role = user['role'] ?? '';
@@ -90,7 +89,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         //TEMPORARY CHANGE
                         //TODO: Remove this later
                         //MaterialPageRoute(builder: (_) => const AdminScreen()),
-                        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const MainNavigationScreen(),
+                        ),
                       );
                     },
                     child: const Text(
@@ -176,28 +177,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   color: AppColors.mainOrange,
                                 ),
                               )
-                            : ElevatedButton(
-                                onPressed: _handleLogin,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.mainOrange,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
+                            : Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFFF8C42),
+                                      Colors.deepOrange,
+                                    ],
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 8,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.white,
+                                child: ElevatedButton(
+                                  onPressed: _handleLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.transparent, // Important
+                                    shadowColor: Colors
+                                        .transparent, // Remove random elevate-color
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                    elevation:
+                                        0, // Keep flat so gradient looks clean
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.white,
+                                    ),
                                   ),
                                 ),
                               ),
                       ),
+
                       const SizedBox(height: 24),
                       if (loginAsync.hasError)
                         Padding(

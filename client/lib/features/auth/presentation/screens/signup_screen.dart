@@ -10,7 +10,7 @@ import '../widgets/custom_text_field.dart';
 import '../providers/auth_provider.dart';
 import '../../../menu/presentation/screens/home_screen.dart';
 
-final signupParamsProvider = StateProvider<Map<String, String>?>( (ref) => null);
+final signupParamsProvider = StateProvider<Map<String, String>?>((ref) => null);
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -18,6 +18,7 @@ class SignupScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
+
 class _SignupScreenState extends ConsumerState<SignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -52,7 +53,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     signupAsync.whenData((session) {
       if (session != null) {
-
         final user = jsonDecode(session.user);
 
         final role = user['role'] ?? '';
@@ -62,8 +62,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             context,
             MaterialPageRoute(builder: (_) => const AdminScreen()),
           );
-        } 
-        else {
+        } else {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
@@ -72,8 +71,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         ref.read(signupParamsProvider.notifier).state = null;
       }
     });
-
-
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
@@ -212,38 +209,66 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       const SizedBox(height: 32),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: signupAsync
-                          .isLoading
-                              ? null
-                              : _handleSignup,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.mainOrange,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 8,
-                          ),
-                          child: signupAsync.isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.white,
+                        child: signupAsync.isLoading
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFFF8C42),
+                                      Colors.deepOrange,
+                                    ],
                                   ),
-                                )
-                              : const Text(
-                                  'Sign Up',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Center(
+                                  child: SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.white,
+                                    ),
                                   ),
                                 ),
-                        ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFFF8C42),
+                                      Colors.deepOrange,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: _handleSignup,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Sign Up',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
                       ),
+
                       const SizedBox(height: 24),
                       if (signupAsync.hasError)
                         Padding(
