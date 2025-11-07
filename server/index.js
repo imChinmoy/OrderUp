@@ -7,7 +7,7 @@ import authRouter from './routes/auth.routes.js';
 import menuRoutes from './routes/menu.routes.js';
 import connectDB from './db.js';
 import orderRoutes from "./routes/orderRoutes.js";
-// import paymentRoutes from "./routes/payment.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 import mlRoutes from "./routes/mlRoutes.js";
 
 const app = express();
@@ -39,7 +39,7 @@ app.use(express.json());
 app.use('/api/auth', authRouter);
 app.use('/api', menuRoutes);
 app.use("/api/orders", orderRoutes);
-// app.use("/api/payment", paymentRoutes);
+app.use("/api/payment", paymentRoutes);
 app.use("/api/ml", mlRoutes); 
 
 server.listen(PORT,'0.0.0.0', () => {
