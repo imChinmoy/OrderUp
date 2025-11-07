@@ -4,7 +4,7 @@ import { Order } from "../models/orderModel.js";
 
 export const createRazorpayOrder = async (req, res) => {
   try {
-    const { amount, userId } = req.body;
+    const { amount, userId,items  } = req.body;
 
     const options = {
       amount: amount * 100,
@@ -39,7 +39,7 @@ export const createRazorpayOrder = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   try {
-    const { orderId, paymentId, signature, userId } = req.body;
+    const { orderId, paymentId, signature, userId, items, totalAmount } = req.body;
 
     const generatedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET)
       .update(orderId + "|" + paymentId)
