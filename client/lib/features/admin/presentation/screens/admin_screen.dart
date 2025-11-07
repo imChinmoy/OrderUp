@@ -1,17 +1,15 @@
 import 'dart:convert';
+
+import 'package:client/features/admin/presentation/providers/order_socket_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:client/core/colors.dart';
 import '../../../auth/data/datasource/hive_session_storage.dart';
 import '../../../auth/data/models/session_model.dart';
-//import '../../../profile/features/screens/profile_screen.dart';
-import 'admin_profile_screen.dart';
-import '../providers/order_providers.dart';
 import '../widgets/order_tile.dart';
-import '../../../auth/presentation/screens/login_screen.dart';
 import 'admin_menu_screen.dart';
 import 'admin_analytics_screen.dart';
+import 'admin_profile_screen.dart';
 
 class AdminScreen extends ConsumerStatefulWidget {
   const AdminScreen({Key? key}) : super(key: key);
@@ -22,52 +20,34 @@ class AdminScreen extends ConsumerStatefulWidget {
 
 class _AdminScreenState extends ConsumerState<AdminScreen> {
   int _tabIndex = 0;
-  String _adminName = '';
-  String _adminEmail = '';
-  bool _loadingDetails = true;
-
-  final HiveSessionStorage _sessionStorage = HiveSessionStorage();
+  String adminName = "";
+  String adminEmail = "";
+  bool loadingUser = true;
 
   @override
   void initState() {
     super.initState();
-    _loadAdminDetails();
+    _loadAdmin();
   }
 
-  Future<void> _loadAdminDetails() async {
-    setState(() {
-      _loadingDetails = true;
-    });
-    final SessionModel? session = await _sessionStorage.getSession();
+  Future<void> _loadAdmin() async {
+    final session = await HiveSessionStorage().getSession();
     if (session != null && session.user.isNotEmpty) {
-      try {
-        final user = jsonDecode(session.user);
-        setState(() {
-          _adminName = user['name'] ?? 'Admin';
-          _adminEmail = user['email'] ?? '';
-          _loadingDetails = false;
-        });
-      } catch (_) {
-        setState(() => _loadingDetails = false);
-      }
+      final parsed = session.safeDecodeUser();
+      setState(() {
+        adminName = parsed['name'] ?? "Admin";
+        adminEmail = parsed['email'] ?? "admin@gmail.com";
+        loadingUser = false;
+      });
     } else {
-      setState(() => _loadingDetails = false);
+      setState(() => loadingUser = false);
     }
-  }
-
-  Future<void> _logout() async {
-    await _sessionStorage.clearSession();
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF16161F),
+      backgroundColor: const Color(0xFF0D0D14),
       body: SafeArea(
         child: Column(
           children: [
@@ -85,88 +65,62 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomBar(),
+      bottomNavigationBar: _bottomNav(),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F1F2E),
+        color: const Color(0xFF17171F),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+            color: Colors.deepOrange.withOpacity(0.3),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Row(
         children: [
-          // Admin Avatar
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.deepOrange.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                _loadingDetails
-                    ? ''
-                    : (_adminName.isNotEmpty ? _adminName[0].toUpperCase() : 'A'),
-                style: const TextStyle(
-                  fontSize: 26,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: Colors.deepOrange,
+            child: Text(
+              adminName.isNotEmpty ? adminName[0].toUpperCase() : "A",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          
-          // Admin Info
+
+          const SizedBox(width: 14),
+
           Expanded(
-            child: _loadingDetails
+            child: loadingUser
                 ? Shimmer.fromColors(
-                    baseColor: const Color(0xFF2A2A3E),
-                    highlightColor: Colors.grey.withOpacity(0.3),
+                    baseColor: Colors.grey.shade800,
+                    highlightColor: Colors.grey.shade600,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           height: 16,
                           width: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                          color: Colors.white,
                         ),
                         const SizedBox(height: 8),
                         Container(
                           height: 12,
-                          width: 140,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                          width: 160,
+                          color: Colors.white,
                         ),
                       ],
                     ),
@@ -176,29 +130,25 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                     children: [
                       Row(
                         children: [
-                          const Text(
-                            "Admin Panel",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          const Text("Admin Panel",
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              )),
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.2),
+                              color: Colors.green.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.green.withOpacity(0.3),
-                              ),
                             ),
                             child: const Text(
-                              "ACTIVE",
+                              "LIVE",
                               style: TextStyle(
-                                color: Colors.green,
-                                fontSize: 9,
+                                color: Colors.greenAccent,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -207,16 +157,16 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _adminName,
+                        adminName,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _adminEmail,
+                        adminEmail,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.5),
                           fontSize: 12,
@@ -225,216 +175,75 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                     ],
                   ),
           ),
-          
-          // Profile Button
-          Container(
-            margin: const EdgeInsets.only(left: 8),
-            decoration: BoxDecoration(
-              color: Colors.deepOrange.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(
-                Icons.person_outline,
-                color: Colors.deepOrange,
-                size: 24,
+
+          InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminProfileScreen(),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.deepOrange.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(14),
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdminProfileScreen(),
-                  ),
-                );
-              },
-              tooltip: 'Profile',
+              child: const Icon(Icons.settings, color: Colors.deepOrange),
             ),
           ),
-          
         ],
       ),
     );
   }
 
   Widget _buildOrdersTab() {
-    final ordersAsync = ref.watch(ordersStreamProvider);
+    final ordersAsync = ref.watch(adminOrdersStreamProvider);
 
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Active Orders",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.deepOrange.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ordersAsync.when(
-                    data: (orders) => Text(
-                      "${orders.length} Orders",
-                      style: const TextStyle(
-                        color: Colors.deepOrange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    loading: () => const Text(
-                      "-- Orders",
-                      style: TextStyle(
-                        color: Colors.deepOrange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    error: (_, __) => const Text(
-                      "0 Orders",
-                      style: TextStyle(
-                        color: Colors.deepOrange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ordersAsync.when(
-              data: (orders) {
-                if (orders.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.inbox_outlined,
-                          size: 80,
-                          color: Colors.white.withOpacity(0.2),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "No orders yet",
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "New orders will appear here",
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.3),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: orders.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, idx) => OrderTile(order: orders[idx]),
-                );
-              },
-              loading: () => ListView.separated(
-                itemCount: 6,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (_, __) => Shimmer.fromColors(
-                  baseColor: const Color(0xFF1F1F2E),
-                  highlightColor: Colors.grey.withOpacity(0.1),
-                  child: Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: const Color(0xFF1F1F2E),
-                    ),
-                  ),
-                ),
-              ),
-              error: (e, _) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 60,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Error loading orders',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      e.toString(),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
-                        fontSize: 12,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.only(top: 12),
+      child: ordersAsync.when(
+        data: (orders) {
+          if (orders.isEmpty) {
+            return _emptyUI();
+          }
+
+          return ListView.separated(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            itemCount: orders.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (_, i) => OrderTile(order: orders[i]),
+          );
+        },
+        loading: () => _loadingShimmer(),
+        error: (err, _) => _errorUI(err),
       ),
     );
   }
 
-  Widget _buildBottomBar() {
+
+  Widget _bottomNav() {
     return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F2E),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+      decoration: const BoxDecoration(
+        color: Color(0xFF17171F),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(28),
+          topRight: Radius.circular(28),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
       ),
       child: SafeArea(
-        top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.receipt_long_outlined, "Orders", 0),
-              _buildNavItem(Icons.restaurant_menu_outlined, "Menu", 1),
-              _buildNavItem(Icons.bar_chart_rounded, "Analytics", 2),
+              _navButton(Icons.receipt_long_outlined, "Orders", 0),
+              _navButton(Icons.restaurant_menu_outlined, "Menu", 1),
+              _navButton(Icons.analytics_outlined, "Analytics", 2),
             ],
           ),
         ),
@@ -442,42 +251,88 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    final isSelected = _tabIndex == index;
+  Widget _navButton(IconData icon, String label, int index) {
+    bool selected = _tabIndex == index;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _tabIndex = index;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      onTap: () => setState(() => _tabIndex = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.deepOrange.withOpacity(0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          gradient: selected
+              ? const LinearGradient(
+                  colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(14),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.deepOrange : Colors.white.withOpacity(0.4),
-              size: 26,
-            ),
-            const SizedBox(height: 4),
+            Icon(icon,
+                color: selected ? Colors.white : Colors.white54, size: 22),
+            const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.deepOrange : Colors.white.withOpacity(0.4),
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                color: selected ? Colors.white : Colors.white54,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+
+  Widget _emptyUI() => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox_rounded,
+                size: 90, color: Colors.white.withOpacity(0.2)),
+            const SizedBox(height: 10),
+            const Text(
+              "No Orders Yet",
+              style: TextStyle(color: Colors.white70, fontSize: 20),
+            ),
+          ],
+        ),
+      );
+
+
+  Widget _loadingShimmer() => ListView.builder(
+        itemCount: 6,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        itemBuilder: (_, __) => Shimmer.fromColors(
+          baseColor: Colors.grey.shade900,
+          highlightColor: Colors.grey.shade700,
+          child: Container(
+            height: 100,
+            margin: const EdgeInsets.only(bottom: 14),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      );
+
+  Widget _errorUI(error) => Center(
+        child: Text(
+          "Error: $error",
+          style: const TextStyle(color: Colors.redAccent, fontSize: 16),
+        ),
+      );
+}
+
+extension on SessionModel {
+  Map<String, dynamic> safeDecodeUser() {
+    try {
+      final first = jsonDecode(user);
+      return first is String ? jsonDecode(first) : first;
+    } catch (_) {
+      return {};
+    }
   }
 }

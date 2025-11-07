@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:client/core/api_endpoints.dart';
+import 'package:client/features/auth/data/datasource/hive_session_storage.dart';
 import 'package:client/features/payment/domain/entities/payment_order_entity.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,11 +11,15 @@ class PaymentRemoteDataSource {
     required double amountInRupees,
     required String userId,
   }) async {
+    final session = await HiveSessionStorage().getSession();
+    final token = session?.token ?? "";
+    
     final url = Uri.parse('$_base${ApiEndpoints.createOrder}');
 
     final res = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json','Authorization': 'Bearer $token',},
+      
       body: jsonEncode({
         'amount': amountInRupees,
         'userId': userId,
@@ -30,7 +35,6 @@ class PaymentRemoteDataSource {
       orderId: data['orderId'],
       amount: data['amount'],
       currency: data['currency'],
-      keyId: data['keyId'],
     );
   }
 
@@ -42,11 +46,13 @@ class PaymentRemoteDataSource {
     required List<Map<String, dynamic>> items,
     required double totalAmount,
   }) async {
+    final session = await HiveSessionStorage().getSession();
+    final token = session?.token ?? "";
     final url = Uri.parse('$_base${ApiEndpoints.verifyPayment}');
 
     final res = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token',},
       body: jsonEncode({
         'orderId': razorpayOrderId,
         'paymentId': razorpayPaymentId,

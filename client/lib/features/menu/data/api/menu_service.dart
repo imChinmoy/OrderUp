@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:client/features/auth/data/datasource/hive_session_storage.dart';
 import 'package:http/http.dart' as http;
 import '../models/menu_item_model.dart';
 import 'package:client/core/api_endpoints.dart';
-
 
 abstract class MenuService {
   Future<List<MenuItemModel>> fetchMenuItems();
@@ -16,8 +16,16 @@ class MenuServiceImpl implements MenuService {
 
   @override
   Future<List<MenuItemModel>> fetchMenuItems() async {
+    final session = await HiveSessionStorage().getSession();
+    final token = session?.token ?? "";
 
-    final response = await client.get(Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.menu}'));
+    final response = await client.get(
+      Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.menu}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
@@ -29,8 +37,17 @@ class MenuServiceImpl implements MenuService {
 
   @override
   Future<List<MenuItemModel>> fetchTrendingMenuItems() async {
+    final session = await HiveSessionStorage().getSession();
+    final token = session?.token ?? "";
 
-    final response = await client.get(Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.trending}'));
+    final response = await client.get(
+      Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.menu}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
       return jsonList.map((json) => MenuItemModel.fromJson(json)).toList();

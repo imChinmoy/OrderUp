@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:client/features/admin/presentation/screens/admin_menu_screen.dart';
 import 'package:client/features/admin/presentation/screens/admin_screen.dart';
 import 'package:client/features/menu/presentation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/custom_text_field.dart';
-import '../providers/auth_provider.dart'; // contains registerProvider
+import '../providers/auth_provider.dart';
 import '../../../menu/presentation/screens/home_screen.dart';
 
 final signupParamsProvider = StateProvider<Map<String, String>?>( (ref) => null);

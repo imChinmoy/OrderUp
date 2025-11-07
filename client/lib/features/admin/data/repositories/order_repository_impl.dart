@@ -1,38 +1,27 @@
-// import 'dart:async';
+import 'package:client/features/admin/domain/repositories/order_repository.dart';
+import '../datasource/socket_order_datasource.dart';
+import '../../domain/entities/order_entity.dart';
 
-// import 'package:client/features/admin/data/datasource/socket_service.dart';
+class OrderRepositoryImpl implements OrderRepository {
+  final SocketOrderDataSource datasource;
+  OrderRepositoryImpl(this.datasource);
 
-// import '../../domain/entities/order_entity.dart';
-// import '../../domain/repositories/order_repository.dart';
+  @override
+  Future<List<OrderEntity>> getAllOrders() async {
+    // You already hit GET /api/orders in another repo (not socket)
+    // If needed, implement here. Returning empty for now:
+    return [];
+  }
 
-// class OrderRepositoryImpl implements OrderRepository {
-//   final SocketService socketService;
-//   final StreamController<List<OrderEntity>> _orderController =
-//       StreamController.broadcast();
+  @override
+  Stream<OrderEntity> listenForNewOrders() =>
+      datasource.listenNewOrders().map((m) => m.toEntity());
 
-//   OrderRepositoryImpl(this.socketService) {
-//     socketService.connect();
+  @override
+  Stream<OrderEntity> listenForStatusUpdates() =>
+      datasource.listenStatusUpdates().map((m) => m.toEntity());
 
-//     socketService.socket.on('new_order', (data) {
-//       // Parse new order data and add to stream
-//       final order = OrderEntity(
-//           id: data['id'],
-//           itemName: data['itemName'],
-//           quantity: data['quantity'],
-//           status: data['status']);
-
-//       // For demo, emit single new order as list
-//       _orderController.add([order]);
-//     });
-//   }
-
-//   @override
-//   Stream<List<OrderEntity>> getOrdersStream() {
-//     return _orderController.stream;
-//   }
-
-//   void dispose() {
-//     _orderController.close();
-//     socketService.dispose();
-//   }
-// }
+  @override
+  Stream<Map<String, dynamic>> listenForCancelled() =>
+      datasource.listenCancelled();
+}

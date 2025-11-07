@@ -1,5 +1,8 @@
 import '../entities/order_entity.dart';
 
 abstract class OrderRepository {
-  Stream<List<OrderEntity>> getOrdersStream();
+  Future<List<OrderEntity>> getAllOrders();
+  Stream<OrderEntity> listenForNewOrders();
+  Stream<OrderEntity> listenForStatusUpdates();
+  Stream<Map<String, dynamic>> listenForCancelled();
 }

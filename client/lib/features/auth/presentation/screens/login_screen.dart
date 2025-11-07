@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:client/features/admin/presentation/screens/admin_menu_screen.dart';
 import 'package:client/features/admin/presentation/screens/admin_screen.dart';
 import 'package:client/features/auth/presentation/providers/auth_provider.dart';
 import 'package:client/features/menu/presentation/screens/main_navigation_screen.dart';
@@ -10,7 +11,6 @@ import 'signup_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../menu/presentation/screens/home_screen.dart';
 
-// StateProvider to hold current login params
 final loginParamsProvider = StateProvider<Map<String, String>?>((ref) => null);
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -48,8 +48,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final loginAsync = loginParams == null
         ? const AsyncValue.data(null)
         : ref.watch(loginProvider(loginParams));
-
-    // Navigate to Home if login successful and reset params to avoid repeated navigation
     loginAsync.whenData((session) {
       if (session != null) {
 

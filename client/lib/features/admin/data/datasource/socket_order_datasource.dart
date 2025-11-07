@@ -1,72 +1,56 @@
 import 'dart:async';
 import 'dart:developer' as dev;
-import 'package:client/core/api_endpoints.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../models/order_model.dart';
+import 'package:client/core/api_endpoints.dart';
 
 class SocketOrderDataSource {
-  late IO.Socket socket;
+  IO.Socket? _socket;
 
-  void connect(String userId, {bool isAdmin = false}) {
-    socket = IO.io(
-      {ApiConfig.baseUrl}, // ⭐ CHANGE THIS
+  void connect({required bool isAdmin, required String userId}) {
+    if (_socket != null && _socket!.connected) return;
+
+    _socket = IO.io(
+      ApiConfig.baseUrl,
       IO.OptionBuilder()
           .setTransports(['websocket'])
-          .setQuery({
-            "userId": userId,
-            "role": isAdmin ? "admin" : "student",
-          })
           .enableAutoConnect()
           .build(),
     );
 
-    socket.onConnect((_) {
+    _socket!.onConnect((_) {
       dev.log("✅ Socket connected");
 
-      if (isAdmin) {
-        socket.emit("joinAdminRoom");
-      } else {
-        socket.emit("joinUserRoom", userId);
-      }
+      _socket!.emit("join", {
+        "role": isAdmin ? "admin" : "student",
+        "userId": userId,
+      });
     });
 
-    socket.onDisconnect((_) {
-      dev.log("⚠️ Socket disconnected");
-    });
+    _socket!.onDisconnect((_) => dev.log("⚠️ Socket disconnected"));
   }
 
-  Stream<OrderModel> listenForNewOrders() {
+  Stream<OrderModel> listenNewOrders() {
     final controller = StreamController<OrderModel>();
-
-    socket.on("newOrder", (data) {
-      controller.add(OrderModel.fromJson(data));
-    });
-
+    _socket!.on("newOrder", (data) => controller.add(OrderModel.fromJson(data)));
     return controller.stream;
   }
 
-  Stream<OrderModel> listenForStatusUpdates() {
+  Stream<OrderModel> listenStatusUpdates() {
     final controller = StreamController<OrderModel>();
-
-    socket.on("orderUpdated", (data) {
-      controller.add(OrderModel.fromJson(data));
-    });
-
+    _socket!.on("orderUpdated", (data) => controller.add(OrderModel.fromJson(data)));
     return controller.stream;
   }
 
-  Stream<Map<String, dynamic>> listenForCancelled() {
+  Stream<Map<String, dynamic>> listenCancelled() {
     final controller = StreamController<Map<String, dynamic>>();
-
-    socket.on("orderCancelled", (data) {
-      controller.add(Map<String, dynamic>.from(data));
-    });
-
+    _socket!.on("orderCancelled", (data) => controller.add(Map<String, dynamic>.from(data)));
     return controller.stream;
   }
 
   void disconnect() {
-    socket.dispose();
-    dev.log("🔌 Socket disconnected and disposed");
+    _socket?.disconnect();
+    _socket?.dispose();
+    dev.log("🔌 Socket disposed");
   }
 }
