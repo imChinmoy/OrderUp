@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import validator from 'validator';
-
+import CustomError from '../utils/customError.js'; // your custom error class
 
 const generateToken = (user) => {
   const payload = {
@@ -14,24 +14,21 @@ const generateToken = (user) => {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-
-export const registerHandler = async (req, res) => {
+export const registerHandler = async (req, res, next) => {
   try {
     const { email, password, name, role } = req.body;
 
     if (!email || !password || !name) {
-      return res
-        .status(400)
-        .json({ error: 'Email, password, and name are required.' });
+      throw new CustomError('Email, password, and name are required.', 400);
     }
 
     if (!validator.isEmail(email)) {
-      return res.status(400).json({ error: 'Invalid email format.' });
+      throw new CustomError('Invalid email format.', 400);
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists.' });
+      throw new CustomError('User already exists.', 400);
     }
 
     const newUser = new User({
@@ -40,11 +37,11 @@ export const registerHandler = async (req, res) => {
       name,
       role: role || 'student',
     });
-    await newUser.save();
 
+    await newUser.save();
     const token = generateToken(newUser);
 
-    return res.status(201).json({
+    res.status(201).json({
       message: 'User registered successfully.',
       token,
       user: {
@@ -55,39 +52,35 @@ export const registerHandler = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error during registration:', error);
-    return res.status(500).json(error);
+    next(error); // pass to centralized error handler
   }
 };
 
-
-export const loginHandler = async (req, res) => {
+export const loginHandler = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ error: 'Email and password are required.' });
+      throw new CustomError('Email and password are required.', 400);
     }
 
     if (!validator.isEmail(email)) {
-      return res.status(400).json({ error: 'Invalid email format.' });
+      throw new CustomError('Invalid email format.', 400);
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials.' });
+      throw new CustomError('Invalid credentials.', 400);
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials.' });
+      throw new CustomError('Invalid credentials.', 400);
     }
 
     const token = generateToken(user);
 
-    return res.status(200).json({
+    res.status(200).json({
       message: 'Login successful.',
       token,
       user: {
@@ -98,7 +91,6 @@ export const loginHandler = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error during login:', error);
-    return res.status(500).json({ error: 'Internal server error.' });
+    next(error);
   }
 };

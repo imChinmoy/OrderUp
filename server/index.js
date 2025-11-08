@@ -11,6 +11,7 @@ import paymentRoutes from "./routes/payment.routes.js";
 import mlRoutes from "./routes/mlRoutes.js";
 import morgan from "morgan";
 import helmet from "helmet";
+import { errorHandler } from "./middlewares/errorMiddleware.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -46,6 +47,10 @@ app.use('/api', menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/ml", mlRoutes); 
+app.get("/error-test", (req, res, next) => {
+  next(new Error("Testing centralized error handler"));
+});
+app.use(errorHandler);
 
 server.listen(PORT,'0.0.0.0', () => {
     connectDB();

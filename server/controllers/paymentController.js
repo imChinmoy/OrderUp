@@ -2,10 +2,11 @@ import crypto from "crypto";
 import { razorpay } from "../razorpay.js";
 import { Order } from "../models/orderModel.js";
 import { io } from "../index.js";
+import CustomError from "../utils/customError.js";
 
-export const createRazorpayOrder = async (req, res) => {
+export const createRazorpayOrder = async (req, res, next) => {
   try {
-    const { amount, userId,items  } = req.body;
+    const { amount, userId, items } = req.body;
 
     const options = {
       amount: amount * 100,
@@ -34,20 +35,21 @@ export const createRazorpayOrder = async (req, res) => {
       dbOrderId: order._id,
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Order creation failed", error: err.message });
+    next(new CustomError(err.message || "Order creation failed", 500));
   }
 };
 
-export const verifyPayment = async (req, res) => {
+export const verifyPayment = async (req, res, next) => {
   try {
     const { orderId, paymentId, signature, userId, items, totalAmount } = req.body;
 
-    const generatedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET)
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET)
       .update(orderId + "|" + paymentId)
       .digest("hex");
 
     if (generatedSignature !== signature) {
-      return res.status(400).json({ success: false, message: "Payment verification failed" });
+      throw new CustomError("Payment verification failed", 400);
     }
 
     const updated = await Order.findOneAndUpdate(
@@ -59,6 +61,7 @@ export const verifyPayment = async (req, res) => {
       },
       { new: true }
     );
+
     if (io) io.to("admins").emit("orderUpdated", updated);
 
     const userRoom = userId.toString();
@@ -66,6 +69,6 @@ export const verifyPayment = async (req, res) => {
 
     return res.status(200).json({ success: true, message: "Payment verified", order: updated });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Verification error", error });
+    next(new CustomError(error.message || "Verification error", 500));
   }
 };

@@ -1,16 +1,14 @@
 import axios from "axios";
+import CustomError from "../utils/customError.js";
 
 const CHATBOT_MODEL_URL = "https://canteen-chatbot-api.onrender.com/chat";
 
-export const getChatbotResponse = async (req, res) => {
+export const getChatbotResponse = async (req, res, next) => {
   try {
     const { user_query } = req.body;
 
     if (!user_query) {
-      return res.status(400).json({
-        success: false,
-        error: "query field is required.",
-      });
+      throw new CustomError("query field is required.", 400);
     }
 
     const response = await axios.post(
@@ -30,18 +28,25 @@ export const getChatbotResponse = async (req, res) => {
     console.error("Chatbot model error:", error.message);
 
     if (error.response) {
-      return res.status(error.response.status).json({
-        success: false,
-        error:
-          error.response.data?.error ||
-          error.response.data?.detail ||
-          "Error from Chatbot ML model.",
-      });
+      const statusCode = error.response.status || 500;
+      const message =
+        error.response.data?.error ||
+        error.response.data?.detail ||
+        "Error from Chatbot ML model.";
+      return next(new CustomError(message, statusCode));
     }
 
-    return res.status(500).json({
-      success: false,
-      error: "Failed to connect to Chatbot service. Please try again later.",
-    });
+    if (error.code === "ECONNABORTED") {
+      return next(
+        new CustomError("Chatbot service timed out. Please try again later.", 504)
+      );
+    }
+
+    return next(
+      new CustomError(
+        "Failed to connect to Chatbot service. Please try again later.",
+        500
+      )
+    );
   }
 };
