@@ -1,8 +1,10 @@
 import 'package:client/features/menu/presentation/providers/menu_provider.dart';
 import 'package:client/features/menu/presentation/screens/food_detail_screen.dart';
+import 'package:client/features/location/presentation/providers/location_provider.dart';
 import 'package:client/features/menu/presentation/screens/search_screen.dart';
 import 'package:client/features/order/presentation/providers/cart_provider.dart';
 import 'package:client/features/profile/features/providers/profile_provider.dart';
+import 'package:client/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
@@ -34,6 +36,39 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
           _setCategories(menuItems);
           return _buildContent(context, menuItems, trendingState);
         },
+      ),
+      floatingActionButton: _buildChatbotFAB(),
+    );
+  }
+
+  Widget _buildChatbotFAB() {
+    return Container(
+      child: FloatingActionButton.extended(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const ChatbotScreen(),
+          );
+        },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        label: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFF8C42), Colors.deepOrange.shade700],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [const Icon(Icons.chat, color: Colors.white, size: 24)],
+          ),
+        ),
       ),
     );
   }
@@ -84,7 +119,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
             SliverToBoxAdapter(
               child: trendingState.when(
                 data: (trendingItems) => _buildTrendingSection(trendingItems),
-                loading: () => _buildTrendingLoadingPlaceholder(),
+                loading: () => _buildTrendingLoadingPlaceholder(context),
                 error: (_, __) => const SizedBox.shrink(),
               ),
             ),
@@ -125,9 +160,11 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 30),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisExtent: 290,
+                  mainAxisExtent:
+                      MediaQuery.of(context).size.height *
+                      0.36, // 36% of screen height - RESPONSIVE
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
@@ -143,15 +180,71 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
     );
   }
 
-  Widget _buildHeader() {
-    final profileAsync = ref.watch(profileProvider);
-    final cartItems = ref.watch(cartProvider);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
+Widget _buildHeader() {
+  final profileAsync = ref.watch(profileProvider);
+  final cartItems = ref.watch(cartProvider);
+  final locationAsync = ref.watch(locationProvider); // ADD THIS
+  
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          locationAsync.when(  // REPLACE THE ENTIRE CONTAINER
+            data: (location) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.location_on,
+                    color: Colors.deepOrange.shade400,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            location.city,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.white.withOpacity(0.6),
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                      if (location.country.isNotEmpty)
+                        Text(
+                          location.country,
+                          style: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 11,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            loading: () => Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.05),
@@ -171,23 +264,48 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                   ),
                   const SizedBox(width: 6),
                   const Text(
-                    "Mushin, Lagos",
+                    "Loading...",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                ],
+              ),
+            ),
+            error: (_, __) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Colors.white.withOpacity(0.6),
+                    Icons.location_on,
+                    color: Colors.deepOrange.shade400,
                     size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  const Text(
+                    "Unknown",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
             ),
-            const Spacer(),
+          ),
+          const Spacer(),
 
             GestureDetector(
               onTap: () => Navigator.of(context).pushNamed('cart'),
@@ -195,7 +313,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Colors.deepOrange, Colors.deepOrange.shade700],
+                    colors: [Color(0xFFFF8C42), Colors.deepOrange.shade700],
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -347,7 +465,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.deepOrange, Colors.deepOrange.shade700],
+                      colors: [Color(0xFFFF8C42), Colors.deepOrange.shade700],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -395,7 +513,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Colors.deepOrange, Colors.deepOrange.shade700],
+                  colors: [Color(0xFFFF8C42), Colors.deepOrange.shade700],
                 )
               : null,
           color: selected ? null : Colors.white.withOpacity(0.06),
@@ -438,56 +556,67 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          //TODO: OVERFLOW FIX KARNA HAI
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.deepOrange.withOpacity(0.2),
-                          Colors.deepOrange.withOpacity(0.1),
-                        ],
+              Flexible(
+                // ADD THIS
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.deepOrange.withOpacity(0.2),
+                            Colors.deepOrange.withOpacity(0.1),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      child: Icon(
+                        Icons.local_fire_department_rounded,
+                        color: Colors.deepOrange.shade400,
+                        size: 24,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.local_fire_department_rounded,
-                      color: Colors.deepOrange.shade400,
-                      size: 24,
+                    const SizedBox(width: 12),
+                    Flexible(
+                      // ADD THIS
+                      child: Text(
+                        "Top Rated Bukas",
+                        style: TextStyle(
+                          // Remove const
+                          color: Colors.white,
+                          fontSize:
+                              MediaQuery.of(context).size.width *
+                              0.055, // Make responsive
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                        maxLines: 1, // ADD THIS
+                        overflow: TextOverflow.ellipsis, // ADD THIS
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    "Top Rated Bukas",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 12, // Reduced from 16
                     vertical: 8,
                   ),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min, // ADD THIS
                   children: [
                     Text(
                       "See all",
                       style: TextStyle(
                         color: Colors.deepOrange.shade400,
-                        fontSize: 15,
+                        fontSize: 14, // Reduced from 15
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -495,7 +624,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                     Icon(
                       Icons.arrow_forward_rounded,
                       color: Colors.deepOrange.shade400,
-                      size: 18,
+                      size: 16, // Reduced from 18
                     ),
                   ],
                 ),
@@ -505,7 +634,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
         ),
         const SizedBox(height: 20),
         SizedBox(
-          height: 260,
+          height: MediaQuery.of(context).size.height * 0.32,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -520,174 +649,195 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
   }
 
   Widget _buildTrendingCard(MenuItemEntity item) {
-    const double cardWidth = 240;
-    //final double cardWidth = MediaQuery.of(context).size.width * 0.6;
-    const double imageRatio = 16 / 9;
-    const double imageHeight = cardWidth / imageRatio;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = screenWidth * 0.65; //
+    final imageHeight = cardWidth * 0.55; //
 
-    return Container(
-      width: cardWidth,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.08),
-            Colors.white.withOpacity(0.03),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 25,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        //TODO: OVERFLOW FIX HARNA HAI
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: ImageWithShimmer(
-                  imageUrl: item.imageUrl,
-                  height: imageHeight,
-                  width: double.infinity,
-                ),
-              ),
-
-              Positioned(
-                top: 10,
-                right: 10,
-                child: ClipRRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
-                          width: 0.5,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.star_rounded,
-                            color: Colors.amber.shade400,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            "4.8",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => FoodDetailScreen(item: item)),
+        );
+      },
+      child: Container(
+        width: cardWidth,
+        padding: EdgeInsets.all(screenWidth * 0.03),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.08),
+              Colors.white.withOpacity(0.03),
             ],
           ),
-
-          const SizedBox(height: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                item.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 18,
-                  letterSpacing: -0.5,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              const SizedBox(height: 6),
-
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.deepOrange.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  item.category ?? '',
-                  style: TextStyle(
-                    color: Colors.deepOrange.shade300,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              blurRadius: 25,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Stack
+            Expanded(
+              flex: 6,
+              child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  Flexible(
-                    child: Text(
-                      "₹${item.price}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 22,
-                        letterSpacing: -0.5,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: ImageWithShimmer(
+                      imageUrl: item.imageUrl,
+                      height: double.infinity,
+                      width: double.infinity,
                     ),
                   ),
-
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.deepOrange, Colors.deepOrange.shade700],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.deepOrange.withOpacity(0.6),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: ClipRRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 0.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber.shade400,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                "4.8",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.add_rounded,
-                      color: Colors.white,
-                      size: 20,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ],
+            ),
+
+            SizedBox(height: screenWidth * 0.02),
+            // Content Section
+            Expanded(
+              flex: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        item.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: screenWidth * 0.045,
+                          letterSpacing: -0.5,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: screenWidth * 0.01),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.deepOrange.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          item.category ?? '',
+                          style: TextStyle(
+                            color: Colors.deepOrange.shade300,
+                            fontSize: screenWidth * 0.028,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          "₹${item.price}",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: screenWidth * 0.055,
+                            letterSpacing: -0.5,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.deepOrange,
+                              Colors.deepOrange.shade700,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.deepOrange.withOpacity(0.6),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.add_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -863,9 +1013,9 @@ Widget _buildLoadingPlaceholder() {
   );
 }
 
-Widget _buildTrendingLoadingPlaceholder() {
+Widget _buildTrendingLoadingPlaceholder(BuildContext context) {
   return SizedBox(
-    height: 260,
+    height: MediaQuery.of(context).size.height * 0.32,
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 24),

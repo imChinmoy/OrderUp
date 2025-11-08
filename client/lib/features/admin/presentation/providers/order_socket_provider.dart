@@ -1,36 +1,43 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../data/datasource/socket_order_datasource.dart';
-import '../../data/models/order_model.dart';
+import '../../data/repositories/order_repository_impl.dart';
 
-final adminOrdersStreamProvider = StreamProvider<List<OrderEntity>>((ref) {
+final orderRepositoryProvider = Provider(
+  (ref) => OrderRepositoryImpl(SocketOrderDataSource()),
+);
+
+final adminOrdersStreamProvider = StreamProvider<List<OrderEntity>>((ref) async* {
+  dev.log("📌 Provider started");
   final socket = SocketOrderDataSource();
-  List<OrderEntity> buffer = [];
+  final repo = OrderRepositoryImpl(socket);
 
-  socket.connect(userId: "admin", isAdmin: true);
+  List<OrderEntity> orders = [];
 
-  final controller = StreamController<List<OrderEntity>>();
+  final oldOrders = await repo.getAllOrders();
+  orders = [...oldOrders];
+  yield orders;
 
-  socket.listenNewOrders().listen((OrderModel model) {
-    final entity = model.toEntity();
-    buffer = [...buffer, entity];
-    controller.add(buffer);
+  socket.connect(isAdmin: true, userId: "admin");
+
+  socket.listenNewOrders().listen((m) {
+    orders = [...orders, m.toEntity()];
+    ref.state = AsyncData(orders);
+  });
+
+  socket.listenStatusUpdates().listen((m) {
+    final updated = m.toEntity();
+    orders = orders.map((o) => o.id == updated.id ? updated : o).toList();
+    ref.state = AsyncData(orders);
   });
 
   socket.listenCancelled().listen((cancelled) {
-    buffer = buffer.where((o) => o.id != cancelled['orderId']).toList();
-    controller.add(buffer);
+    orders = orders.where((o) => o.id != cancelled['orderId']).toList();
+    ref.state = AsyncData(orders);
   });
 
-
-  ref.onDispose(() {
-    socket.disconnect();
-    controller.close();
-  });
-
-
-  controller.add([]);
-
-  return controller.stream;
+  ref.onDispose(socket.disconnect);
 });
+

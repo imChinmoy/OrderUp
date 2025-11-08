@@ -1,4 +1,4 @@
-import '../../domain/entities/order_entity.dart';
+import 'package:client/features/admin/domain/entities/order_entity.dart';
 
 class OrderModel {
   final String id;
@@ -13,41 +13,41 @@ class OrderModel {
   OrderModel({
     required this.id,
     required this.userId,
-    this.userName,
     required this.items,
     required this.totalAmount,
     required this.status,
     required this.paymentStatus,
     required this.createdAt,
+    this.userName,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     final u = json['userId'];
 
     return OrderModel(
-      id: json['_id'] ?? json['id'],
-      userId: u is Map ? u['_id'] : u,
-      userName: u is Map ? u['name'] : null,
-      items: (json['items'] as List)
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      userId: u is Map ? (u['_id']?.toString() ?? '') : (u?.toString() ?? ''),
+      userName: u is Map ? (u['name']?.toString() ?? '') : '',
+      items: (json['items'] as List? ?? [])
           .map((i) => OrderItemModel.fromJson(i))
           .toList(),
-      totalAmount: (json['totalAmount'] as num).toDouble(),
-      status: json['status'] ?? 'received',
-      paymentStatus: json['paymentStatus'] ?? 'pending',
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toString()),
+      totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      status: json['status']?.toString() ?? 'received',
+      paymentStatus: json['paymentStatus']?.toString() ?? 'pending',
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
   }
 
   OrderEntity toEntity() => OrderEntity(
-    id: id,
-    userId: userId,
-    userName: userName,
-    items: items.map((e) => e.toEntity()).toList(),
-    totalAmount: totalAmount,
-    status: status,
-    paymentStatus: paymentStatus,
-    createdAt: createdAt,
-  );
+        id: id,
+        userId: userId,
+        userName: userName,
+        items: items.map((e) => e.toEntity()).toList(),
+        totalAmount: totalAmount,
+        status: status,
+        paymentStatus: paymentStatus,
+        createdAt: createdAt,
+      );
 }
 
 class OrderItemModel {
@@ -67,19 +67,19 @@ class OrderItemModel {
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
     return OrderItemModel(
-      itemId: json['itemId'],
-      name: json['name'],
-      quantity: json['quantity'],
-      price: (json['price'] as num).toDouble(),
-      imageUrl: json['imageUrl'] ?? '',
+      itemId: json['itemId']?.toString() ?? '',
+      name: json['name']?.toString() ?? 'Unknown Item',
+      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      imageUrl: json['imageUrl']?.toString() ?? '',
     );
   }
 
   OrderItemEntity toEntity() => OrderItemEntity(
-    itemId: itemId,
-    name: name,
-    quantity: quantity,
-    price: price,
-    imageUrl: imageUrl,
-  );
+        itemId: itemId,
+        name: name,
+        quantity: quantity,
+        price: price,
+        imageUrl: imageUrl,
+      );
 }

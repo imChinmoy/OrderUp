@@ -21,8 +21,8 @@ class ApiEndpoints {
   static String menuById(String id) => "/menu/$id";
 
   // 🛒 ORDER ENDPOINTS
-  static const String order = "/order";
-  static String orderById(String id) => "/order/$id";
+  static const String order = "/orders";
+  static String orderById(String id) => "/orders/$id";
 
   static const String payment = "/payment";
   static const String createOrder = "/payment/create-order";
@@ -31,4 +31,6 @@ class ApiEndpoints {
   // ⚙️ ADMIN ENDPOINTS
   static const String adminMenu = "/admin/menu";
   static String adminMenuById(String id) => "/admin/menu/$id";
+
+  static const String chatEndpoint = '/ml/chat';
 }

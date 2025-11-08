@@ -17,18 +17,13 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
   final TextEditingController _deliveryTimeController = TextEditingController();
 
   final List<String> _categories = [
-    'Biryani',
-    'Brownie',
-    'Burger',
-    'Tea',
-    'Ice Cream',
-    'Pizza',
-    'Cold Coffee',
-    'Salad',
-    'Pasta',
-    'Sandwich',
+    'Dessert',
+    'Drink',
+    'Fast Food',
+    'Main Course',
+    'Snack',
   ];
-
+  
   @override
   void dispose() {
     _budgetController.dispose();
@@ -77,7 +72,6 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       'deliveryTime': int.parse(_deliveryTimeController.text),
     };
 
-    
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -115,27 +109,27 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
             const SizedBox(height: 12),
             _buildCategoryDropdown(),
             const SizedBox(height: 28),
-            
+
             _buildSectionTitle('Group Size'),
             const SizedBox(height: 12),
             _buildGroupSizeStepper(),
             const SizedBox(height: 28),
-            
+
             _buildSectionTitle('Budget (₹)'),
             const SizedBox(height: 12),
             _buildBudgetInput(),
             const SizedBox(height: 28),
-            
+
             _buildSectionTitle('Rating (1-5)'),
             const SizedBox(height: 12),
             _buildRatingSlider(),
             const SizedBox(height: 28),
-            
+
             _buildSectionTitle('Delivery Time (minutes)'),
             const SizedBox(height: 12),
             _buildDeliveryTimeInput(),
             const SizedBox(height: 40),
-            
+
             _buildGetRecommendationsButton(),
           ],
         ),
@@ -159,10 +153,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1F1F2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -178,7 +169,10 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
           dropdownColor: const Color(0xFF1F1F2E),
           icon: Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Icon(Icons.keyboard_arrow_down, color: Colors.white.withOpacity(0.5)),
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              color: Colors.white.withOpacity(0.5),
+            ),
           ),
           items: _categories.map((String category) {
             return DropdownMenuItem<String>(
@@ -207,10 +201,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1F1F2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
@@ -218,26 +209,23 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
         children: [
           const Text(
             'Number of people',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: 15),
           ),
           Row(
             children: [
-              _buildStepperButton(
-                Icons.remove,
-                () {
-                  if (_groupSize > 1) {
-                    setState(() {
-                      _groupSize--;
-                    });
-                  }
-                },
-              ),
+              _buildStepperButton(Icons.remove, () {
+                if (_groupSize > 1) {
+                  setState(() {
+                    _groupSize--;
+                  });
+                }
+              }),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF16161F),
                   borderRadius: BorderRadius.circular(8),
@@ -251,21 +239,18 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                   ),
                 ),
               ),
-              _buildStepperButton(
-                Icons.add,
-                () {
-                  setState(() {
-                    _groupSize++;
-                  });
-                },
-              ),
+              _buildStepperButton(Icons.add, () {
+                setState(() {
+                  _groupSize++;
+                });
+              }),
             ],
           ),
         ],
       ),
     );
   }
-
+    
   Widget _buildStepperButton(IconData icon, VoidCallback onPressed) {
     return GestureDetector(
       onTap: onPressed,
@@ -290,10 +275,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1F1F2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       child: TextField(
         controller: _budgetController,
@@ -314,9 +296,15 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
               ),
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+          ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
       ),
     );
@@ -327,10 +315,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1F1F2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
@@ -340,10 +325,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
             children: [
               const Text(
                 'Minimum rating',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 15),
               ),
               Row(
                 children: [
@@ -391,10 +373,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1F1F2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       child: TextField(
         controller: _deliveryTimeController,
@@ -414,9 +393,15 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
               ),
             ),
           ),
-          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+          ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
       ),
     );

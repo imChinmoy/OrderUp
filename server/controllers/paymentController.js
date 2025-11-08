@@ -41,7 +41,7 @@ export const createRazorpayOrder = async (req, res, next) => {
 
 export const verifyPayment = async (req, res, next) => {
   try {
-    const { orderId, paymentId, signature, userId, items, totalAmount } = req.body;
+    const { orderId, paymentId, signature, userId } = req.body;
 
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET)
@@ -49,7 +49,10 @@ export const verifyPayment = async (req, res, next) => {
       .digest("hex");
 
     if (generatedSignature !== signature) {
-      throw new CustomError("Payment verification failed", 400);
+      return res.status(400).json({
+        success: false,
+        message: "Payment verification failed",
+      });
     }
 
     const updated = await Order.findOneAndUpdate(
@@ -57,18 +60,28 @@ export const verifyPayment = async (req, res, next) => {
       {
         paymentStatus: "paid",
         paymentId,
+        status: "received",
         updatedAt: Date.now(),
       },
       { new: true }
     );
 
+    // ✅ Notify admin
     if (io) io.to("admins").emit("orderUpdated", updated);
 
-    const userRoom = userId.toString();
-    if (io) io.to(userRoom).emit("orderUpdated", updated);
+    // ✅ Notify this user
+    if (io) io.to(userId.toString()).emit("orderUpdated", updated);
 
-    return res.status(200).json({ success: true, message: "Payment verified", order: updated });
-  } catch (error) {
-    next(new CustomError(error.message || "Verification error", 500));
+    return res.status(200).json({
+      success: true,
+      message: "Payment verified",
+      order: updated,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Verification error",
+      error: err.message,
+    });
   }
 };

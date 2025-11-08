@@ -62,15 +62,24 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                MainAxisAlignment.spaceAround, // Changed from spaceBetween
             children: [
-              _buildNavItem(Icons.home, "Home", 0),
-              _buildNavItem(Icons.notifications_outlined, "Notif", 1),
-              _buildFloatingActionButton(),
-              _buildNavItem(Icons.favorite_border, "Favourites", 3),
-              _buildNavItem(Icons.person_outline, "Profile", 4),
+              Expanded(
+                child: _buildNavItem(Icons.home, "Home", 0),
+              ), // Add Expanded
+              Expanded(
+                child: _buildNavItem(Icons.notifications_outlined, "Notif", 1),
+              ), // Add Expanded
+              _buildFloatingActionButton(), // Keep as is
+              Expanded(
+                child: _buildNavItem(Icons.favorite_border, "Fav", 3),
+              ), // Add Expanded + shortened label
+              Expanded(
+                child: _buildNavItem(Icons.person_outline, "Profile", 4),
+              ), // Add Expanded
             ],
           ),
         ),
@@ -87,9 +96,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 4,
+          vertical: 8,
+        ), // Reduced padding
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center, // ADD THIS
           children: [
             Icon(
               icon,
@@ -108,6 +121,9 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
+              textAlign: TextAlign.center, // ADD THIS
+              overflow: TextOverflow.ellipsis, // ADD THIS
+              maxLines: 1, // ADD THIS
             ),
           ],
         ),

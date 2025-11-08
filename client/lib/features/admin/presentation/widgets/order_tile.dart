@@ -1,13 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../domain/entities/order_entity.dart';
 
 class OrderTile extends ConsumerWidget {
   final OrderEntity order;
   const OrderTile({Key? key, required this.order}) : super(key: key);
-  
-  get NumberFormat => null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,7 +50,6 @@ class OrderTile extends ConsumerWidget {
     );
   }
 
-
   Widget _header() {
     return Row(
       children: [
@@ -64,7 +62,7 @@ class OrderTile extends ConsumerWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            "#${order.id.substring(0, 6).toUpperCase()}",
+            "#${(order.id ?? '').substring(0, 6).toUpperCase()}",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 12,
@@ -72,9 +70,7 @@ class OrderTile extends ConsumerWidget {
             ),
           ),
         ),
-
         const SizedBox(width: 10),
-
         Expanded(
           child: Text(
             "Customer: ${order.userName ?? 'Unknown'}",
@@ -90,9 +86,17 @@ class OrderTile extends ConsumerWidget {
   }
 
   Widget _itemList() {
+    final items = order.items ?? [];
+    if (items.isEmpty) {
+      return const Text(
+        "No items in this order",
+        style: TextStyle(color: Colors.white54, fontSize: 13),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: order.items.map((item) {
+      children: items.map((item) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 6),
           child: Row(
@@ -100,20 +104,29 @@ class OrderTile extends ConsumerWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  item.imageUrl,
+                  item.imageUrl.isNotEmpty
+                      ? item.imageUrl
+                      : "https://via.placeholder.com/36",
                   width: 36,
                   height: 36,
                   fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 36,
+                    height: 36,
+                    color: Colors.grey.shade800,
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: Colors.white38,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   "${item.name}  x${item.quantity}",
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ),
             ],
@@ -124,23 +137,20 @@ class OrderTile extends ConsumerWidget {
   }
 
   Widget _footer(WidgetRef ref) {
-    final formatted = NumberFormat.currency(
-      symbol: "₹",
-      decimalDigits: 0,
-    ).format(order.totalAmount);
+    final formatter = NumberFormat.currency(symbol: "₹", decimalDigits: 0);
+    final formattedAmount = formatter.format(order.totalAmount ?? 0);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          formatted,
+          formattedAmount,
           style: const TextStyle(
             color: Colors.deepOrange,
             fontSize: 22,
             fontWeight: FontWeight.w900,
           ),
         ),
-
         _statusButton(ref),
       ],
     );
@@ -184,12 +194,9 @@ class OrderTile extends ConsumerWidget {
     }
 
     return GestureDetector(
-      // onTap: () {
-      //   ref.read(updateOrderStatusProvider.notifier).updateStatus(
-      //         order.id,
-      //         nextStatus,
-      //       );
-      // },
+      onTap: () {
+        // TODO: add order status update call if needed
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
