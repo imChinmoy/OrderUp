@@ -24,4 +24,6 @@ class SessionModel {
   SessionEntity toSessionEntity() {
     return SessionEntity(token: token, user: user.toString());
   }
+
+  safeDecodeUser() {}
 }
