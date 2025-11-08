@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import '../providers/admin_menu_provider.dart';
@@ -18,6 +19,8 @@ class _AdminMenuScreenState extends ConsumerState<AdminMenuScreen> {
     final s = {"All", ...items.map((e) => e.category)};
     return s.toList()..sort();
   }
+
+
 
   List<MenuModel> _filtered(List<MenuModel> items) {
     if (_selectedCategory == "All") return items;
@@ -106,7 +109,9 @@ class _AdminMenuScreenState extends ConsumerState<AdminMenuScreen> {
                   style: TextStyle(
                     color: isSelected ? Colors.deepOrange : Colors.white70,
                     fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
               ),

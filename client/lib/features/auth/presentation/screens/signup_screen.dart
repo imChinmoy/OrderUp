@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:client/features/admin/presentation/screens/admin_menu_screen.dart';
 import 'package:client/features/admin/presentation/screens/admin_screen.dart';
 import 'package:client/features/menu/presentation/screens/main_navigation_screen.dart';
+import 'package:client/features/profile/features/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/custom_text_field.dart';
@@ -57,16 +59,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
         final role = user['role'] ?? '';
 
+        ref.invalidate(profileProvider);
+
         if (role == 'admin') {
-          Navigator.pushReplacement(
+          /* Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const AdminScreen()),
-          );
+          //  MaterialPageRoute(builder: (_) => const AdminScreen()),
+          ); */
+          context.push('/admin');
         } else {
-          Navigator.pushReplacement(
+          /* Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-          );
+           // MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+          ); */
+          context.push('/home');
         }
         ref.read(signupParamsProvider.notifier).state = null;
       }
@@ -83,7 +89,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back, color: AppColors.white),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                 ),
                 const SizedBox(height: 20),
                 Container(
@@ -354,7 +360,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () => context.pop(),
                             child: const Text(
                               'Sign In',
                               style: TextStyle(

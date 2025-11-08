@@ -1,10 +1,9 @@
-import 'package:client/features/menu/presentation/screens/search_screen.dart';
-import 'package:client/features/order/presentation/screens/cart_screen.dart';
 import 'package:client/features/recommendations/presentation/screens/recommendation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/features/menu/presentation/screens/home_screen.dart';
 import 'package:client/features/profile/features/screens/profile_screen.dart';
+import 'package:go_router/go_router.dart';
 
 // This is the main screen that manages navigation
 class MainNavigationScreen extends ConsumerStatefulWidget {
@@ -25,13 +24,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const HomeNavigator(), // Home
-      const NotificationsScreen(), // Notifications
+      const HomeScreenContent(), // CHANGED
       const Center(
-        child: Text('Recommendations', style: TextStyle(color: Colors.white)),
-      ), // Placeholder
-      const FavoritesScreen(), // Favorites
-      const ProfileScreen(), // Profile
+        child: Text('Notifications', style: TextStyle(color: Colors.white)),
+      ),
+      const FavoritesScreen(),
+      const ProfileScreen(),
     ];
   }
 
@@ -64,22 +62,17 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceAround, // Changed from spaceBetween
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(
-                child: _buildNavItem(Icons.home, "Home", 0),
-              ), // Add Expanded
+              Expanded(child: _buildNavItem(Icons.home, "Home", 0)),
               Expanded(
                 child: _buildNavItem(Icons.notifications_outlined, "Notif", 1),
-              ), // Add Expanded
-              _buildFloatingActionButton(), // Keep as is
+              ),
+              _buildFloatingActionButton(),
+              Expanded(child: _buildNavItem(Icons.favorite_border, "Fav", 2)),
               Expanded(
-                child: _buildNavItem(Icons.favorite_border, "Fav", 3),
-              ), // Add Expanded + shortened label
-              Expanded(
-                child: _buildNavItem(Icons.person_outline, "Profile", 4),
-              ), // Add Expanded
+                child: _buildNavItem(Icons.person_outline, "Profile", 3),
+              ),
             ],
           ),
         ),
@@ -96,13 +89,10 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 8,
-        ), // Reduced padding
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center, // ADD THIS
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
@@ -121,9 +111,9 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
-              textAlign: TextAlign.center, // ADD THIS
-              overflow: TextOverflow.ellipsis, // ADD THIS
-              maxLines: 1, // ADD THIS
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ],
         ),
@@ -134,11 +124,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   Widget _buildFloatingActionButton() {
     return GestureDetector(
       onTap: () {
-        // Navigate to RecommendationScreen instead of changing tab
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const RecommendationScreen()),
-        );
+        context.push('/recommendations'); // ✅ Already correct
       },
       child: Container(
         width: 56,
@@ -168,7 +154,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   }
 }
 
-// Placeholder screens - replace these with your actual screens
+// Placeholder screens
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
 
@@ -197,30 +183,4 @@ class FavoritesScreen extends StatelessWidget {
   }
 }
 
-class HomeNavigator extends StatelessWidget {
-  const HomeNavigator({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Navigator(
-      initialRoute: 'home',
-      onGenerateRoute: (RouteSettings settings) {
-        WidgetBuilder builder;
-        switch (settings.name) {
-          case 'home':
-            builder = (BuildContext _) => const HomeScreenContent();
-            break;
-          case 'search':
-            builder = (BuildContext _) => const SearchScreen();
-            break;
-          case 'cart':
-            builder = (BuildContext _) => const CartScreen();
-            break;
-          default:
-            throw Exception('Invalid route: ${settings.name}');
-        }
-        return MaterialPageRoute(builder: builder, settings: settings);
-      },
-    );
-  }
-}
+// GoRouter handles search/cart navigation now from home_screen.dart

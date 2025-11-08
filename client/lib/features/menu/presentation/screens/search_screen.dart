@@ -1,6 +1,7 @@
 import 'package:client/features/menu/presentation/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../domain/entities/menu_item_entity.dart';
 
@@ -121,7 +122,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Row(
             children: [
               GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () => context.pop(),
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(

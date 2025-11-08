@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
 
     Timer(const Duration(milliseconds: 3500), () {
       if (mounted) {
-        Navigator.popUntil(context, (route) => route.settings.name == 'home');
+        context.go('/home');
       }
     });
   }
@@ -78,7 +79,9 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               ),
               child: TextButton(
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.settings.name == 'home');
+                  //Navigator.popUntil(context, (route) => route.settings.name == 'home');
+                  //kinda doubt in it
+                  context.go('/home');
                 },
                 child: const Text(
                   "Continue",

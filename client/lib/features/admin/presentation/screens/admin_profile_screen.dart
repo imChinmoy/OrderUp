@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../auth/data/datasource/hive_session_storage.dart';
 import '../../../auth/data/models/session_model.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
@@ -33,12 +34,12 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       final SessionModel? session = await _sessionStorage.getSession();
       if (session != null && session.user.isNotEmpty) {
         dynamic userData = jsonDecode(session.user);
-        
+
         // Handle nested JSON if needed
         if (userData is String) {
           userData = jsonDecode(userData);
         }
-        
+
         setState(() {
           _adminName = userData['name'] ?? 'Admin';
           _adminEmail = userData['email'] ?? 'admin@example.com';
@@ -111,7 +112,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               size: 20,
             ),
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
             },
           ),
           const Text(
@@ -183,16 +184,9 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                     end: Alignment.bottomRight,
                   ),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFF16161F),
-                    width: 4,
-                  ),
+                  border: Border.all(color: const Color(0xFF16161F), width: 4),
                 ),
-                child: const Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: const Icon(Icons.edit, color: Colors.white, size: 20),
               ),
             ),
           ],
@@ -212,9 +206,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           decoration: BoxDecoration(
             color: Colors.deepOrange.withOpacity(0.15),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.deepOrange.withOpacity(0.3),
-            ),
+            border: Border.all(color: Colors.deepOrange.withOpacity(0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -239,10 +231,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         const SizedBox(height: 8),
         Text(
           _adminEmail,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.6),
-            fontSize: 15,
-          ),
+          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15),
         ),
       ],
     );
@@ -265,22 +254,14 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             label: "Total Orders",
             color: Colors.blue,
           ),
-          Container(
-            width: 1,
-            height: 60,
-            color: Colors.white.withOpacity(0.1),
-          ),
+          Container(width: 1, height: 60, color: Colors.white.withOpacity(0.1)),
           _buildStatCard(
             icon: Icons.restaurant_menu,
             value: "48",
             label: "Menu Items",
             color: Colors.green,
           ),
-          Container(
-            width: 1,
-            height: 60,
-            color: Colors.white.withOpacity(0.1),
-          ),
+          Container(width: 1, height: 60, color: Colors.white.withOpacity(0.1)),
           _buildStatCard(
             icon: Icons.attach_money,
             value: "₹45K",
@@ -320,10 +301,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.5),
-            fontSize: 11,
-          ),
+          style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
           textAlign: TextAlign.center,
         ),
       ],
@@ -429,10 +407,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
           width: 48,
           height: 48,
@@ -440,11 +415,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             color: Colors.deepOrange.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: Colors.deepOrange,
-            size: 24,
-          ),
+          child: Icon(icon, color: Colors.deepOrange, size: 24),
         ),
         title: Text(
           title,
@@ -505,11 +476,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                Icon(Icons.logout, color: Colors.white, size: 20),
                 SizedBox(width: 8),
                 Text(
                   "Logout",
@@ -538,39 +505,27 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           ),
           title: const Text(
             "Logout",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           content: const Text(
             "Are you sure you want to logout from admin panel?",
-            style: TextStyle(
-              color: Colors.white70,
-            ),
+            style: TextStyle(color: Colors.white70),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                context.pop();
               },
               child: const Text(
                 "Cancel",
-                style: TextStyle(
-                  color: Colors.white70,
-                ),
+                style: TextStyle(color: Colors.white70),
               ),
             ),
             TextButton(
               onPressed: () async {
                 await _sessionStorage.clearSession();
                 if (!context.mounted) return;
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                  (route) => false,
-                );
+                context.go('/login');
               },
               child: const Text(
                 "Logout",

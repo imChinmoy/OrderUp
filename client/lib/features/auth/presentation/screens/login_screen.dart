@@ -4,7 +4,9 @@ import 'package:client/features/admin/presentation/screens/admin_menu_screen.dar
 import 'package:client/features/admin/presentation/screens/admin_screen.dart';
 import 'package:client/features/auth/presentation/providers/auth_provider.dart';
 import 'package:client/features/menu/presentation/screens/main_navigation_screen.dart';
+import 'package:client/features/profile/features/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/colors.dart';
 import '../widgets/custom_text_field.dart';
 import 'signup_screen.dart';
@@ -54,16 +56,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
         final role = user['role'] ?? '';
 
+        ref.invalidate(profileProvider);
+
         if (role == 'admin') {
-          Navigator.pushReplacement(
+          /* Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const AdminScreen()),
-          );
+            //MaterialPageRoute(builder: (_) => const AdminScreen()),
+          ); */
+          context.pushReplacement('/admin');
         } else {
-          Navigator.pushReplacement(
+          /* Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-          );
+           // MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+          ); */
+          context.pushReplacement('/home');
         }
 
         ref.read(loginParamsProvider.notifier).state = null;
@@ -84,15 +90,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: Alignment.topRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      /* Navigator.pushReplacement(
                         context,
                         //TEMPORARY CHANGE
                         //TODO: Remove this later
                         //MaterialPageRoute(builder: (_) => const AdminScreen()),
-                        MaterialPageRoute(
+                        //MaterialPageRoute(
                           builder: (_) => const MainNavigationScreen(),
                         ),
-                      );
+                      ); */
+                      context.pushReplacement('/home');
+                      //context.pushReplacement('/admin');
                     },
                     child: const Text(
                       "Skip",
@@ -301,12 +309,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              /* Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => const SignupScreen(),
                                 ),
-                              );
+                              ); */
+                              context.push('/signup');
                             },
                             child: const Text(
                               'Sign Up',

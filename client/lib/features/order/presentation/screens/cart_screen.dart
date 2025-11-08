@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/features/order/presentation/providers/cart_provider.dart';
 import 'package:client/features/order/presentation/screens/order_summary_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -68,7 +69,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
               backgroundColor: Colors.deepOrange,
             ),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text(
               "Browse Foods",
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
@@ -105,12 +106,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 child: Stack(
                   children: [
                     ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(
-                        20,
-                        0,
-                        20,
-                        140,
-                      ),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 140),
                       itemCount: cartItems.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 14),
                       itemBuilder: (context, index) {
@@ -152,7 +148,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
               color: Colors.white,
               size: 20,
             ),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
           ),
           const Spacer(),
           const Text(
@@ -302,6 +298,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       ),
     );
   }
+
   Widget _checkoutBar(BuildContext context, double totalPrice) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -339,12 +336,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
             GestureDetector(
               onTap: () {
-                Navigator.push(
+                /* Navigator.push(
                   context,
-                  MaterialPageRoute(
+                 // MaterialPageRoute(
                     builder: (_) => OrderSummaryScreen(totalAmount: totalPrice),
                   ),
-                );
+                ); */
+                context.push('/order-summary', extra: totalPrice);
               },
               child: Container(
                 width: double.infinity,

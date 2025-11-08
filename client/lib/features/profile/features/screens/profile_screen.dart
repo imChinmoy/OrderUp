@@ -1,6 +1,9 @@
 import 'package:client/features/profile/features/providers/profile_provider.dart';
+import 'package:client/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:client/features/auth/presentation/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -17,13 +20,12 @@ class ProfileScreen extends ConsumerWidget {
           style: TextStyle(color: Colors.red),
         ),
       ),
-      
       data: (user) {
         final displayName = (user?['name'] ?? 'Guest User') as String;
         final email = (user?['email'] ?? 'No email found') as String;
         final avatarUrl =
             (user?['avatar'] ??
-                    "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg");
+            "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg");
 
         return SafeArea(
           child: SingleChildScrollView(
@@ -33,8 +35,8 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 30),
                 _buildProfileSection(displayName, email, avatarUrl),
                 const SizedBox(height: 30),
-                _buildMenuOptions(context),
-                const SizedBox(height: 100), // Extra padding for bottom nav bar
+                _buildMenuOptions(context, ref),
+                const SizedBox(height: 100),
               ],
             ),
           ),
@@ -49,7 +51,7 @@ class ProfileScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox(width: 48), // Spacer to center title
+          const SizedBox(width: 48),
           const Text(
             "Profile",
             style: TextStyle(
@@ -166,7 +168,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuOptions(BuildContext context) {
+  Widget _buildMenuOptions(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -208,7 +210,7 @@ class ProfileScreen extends ConsumerWidget {
             onTap: () {},
           ),
           const SizedBox(height: 10),
-          _buildLogoutButton(context),
+          _buildLogoutButton(context, ref),
         ],
       ),
     );
@@ -265,7 +267,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -289,7 +291,7 @@ class ProfileScreen extends ConsumerWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            _showLogoutDialog(context);
+            _showLogoutDialog(context, ref);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -314,10 +316,10 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           backgroundColor: const Color(0xFF1F1F2E),
           shape: RoundedRectangleBorder(
@@ -334,7 +336,7 @@ class ProfileScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                context.pop();
               },
               child: const Text(
                 "Cancel",
@@ -342,9 +344,53 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Implement session clearing and navigation to login here
+              onPressed: () async {
+                // Close dialog first
+                context.pop();
+                ;
+
+                // Show loading indicator
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext loadingContext) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.deepOrange,
+                      ),
+                    );
+                  },
+                );
+
+                // Perform logout
+                // Perform logout
+                final success = await ref
+                    .read(authStateProvider.notifier)
+                    .logout();
+
+                // Close loading indicator
+                if (context.mounted) {
+                  context.pop();
+                  ;
+                }
+
+                if (success) {
+                  // Navigate to login screen and clear entire navigation stack
+                  if (context.mounted) {
+                    context.go('/login');
+                  }
+                } else {
+                  // Show error message
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Logout failed. Please try again.'),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                }
               },
               child: const Text(
                 "Logout",

@@ -7,6 +7,7 @@ import 'package:client/features/profile/features/providers/profile_provider.dart
 import 'package:client/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../domain/entities/menu_item_entity.dart';
 import 'dart:ui';
@@ -308,7 +309,7 @@ Widget _buildHeader() {
           const Spacer(),
 
             GestureDetector(
-              onTap: () => Navigator.of(context).pushNamed('cart'),
+              onTap: () => context.push('/cart'),
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -416,7 +417,7 @@ Widget _buildHeader() {
         ),
         const SizedBox(height: 26),
         GestureDetector(
-          onTap: () => Navigator.of(context).pushNamed('search'),
+          onTap: () => context.push('/search'),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
@@ -655,10 +656,7 @@ Widget _buildHeader() {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => FoodDetailScreen(item: item)),
-        );
+        context.push('/food-detail', extra: item);
       },
       child: Container(
         width: cardWidth,
@@ -845,10 +843,7 @@ Widget _buildHeader() {
   Widget _buildFoodCard(MenuItemEntity item) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => FoodDetailScreen(item: item)),
-        );
+        context.push('/food-detail', extra: item);
       },
       child: Container(
         decoration: BoxDecoration(

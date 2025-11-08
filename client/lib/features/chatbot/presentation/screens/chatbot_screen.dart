@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/chatbot_provider.dart';
 import 'dart:ui';
 
@@ -176,13 +177,13 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => context.pop(),
                                 child: const Text("Cancel"),
                               ),
                               TextButton(
                                 onPressed: () {
                                   ref.read(chatbotProvider.notifier).clearChat();
-                                  Navigator.pop(context);
+                                  context.pop();
                                 },
                                 child: const Text(
                                   "Clear",
@@ -199,7 +200,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                       icon: Icon(
                         Icons.close_rounded,
                         color: Colors.white.withOpacity(0.6),

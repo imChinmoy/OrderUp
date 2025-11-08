@@ -1,5 +1,6 @@
 import 'package:client/features/payment/presentation/screens/razorpay_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class OrderSummaryScreen extends StatelessWidget {
   final double totalAmount;
@@ -83,12 +84,13 @@ class OrderSummaryScreen extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: () {
-            Navigator.push(
+            /* Navigator.push(
               context,
-              MaterialPageRoute(
+            //  MaterialPageRoute(
                 builder: (_) => RazorpayScreen(totalAmount: totalAmount),
               ),
-            );
+            ); */
+            context.push('/razorpay', extra: totalAmount);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("Redirecting to payment gateway..."),

@@ -4,6 +4,7 @@ import 'package:client/features/payment/presentation/providers/payment_provider.
 import 'package:client/features/profile/features/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 const String kRazorpayKeyId = 'rzp_test_RcDdOSpKhFqVpl';
@@ -113,12 +114,13 @@ class _RazorpayScreenState extends ConsumerState<RazorpayScreen> {
 
       await Future.delayed(const Duration(milliseconds: 800));
 
-      Navigator.pushReplacement(
+      /* Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
+      //  MaterialPageRoute(
           builder: (_) => OrderSuccessScreen(totalAmount: widget.totalAmount),
         ),
-      );
+      ); */
+      context.go('/order-success', extra: widget.totalAmount);
     } else {
       _toast('Payment verification failed');
     }

@@ -3,6 +3,7 @@ import 'package:client/features/admin/presentation/providers/admin_order_provide
 import 'package:client/features/admin/presentation/providers/order_socket_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../auth/data/datasource/hive_session_storage.dart';
 import '../../../auth/data/models/session_model.dart';
@@ -139,10 +140,11 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           InkWell(
             borderRadius: BorderRadius.circular(14),
             onTap: () {
-              Navigator.push(
+              /* Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const AdminProfileScreen()),
-              );
+                //MaterialPageRoute(builder: (_) => const AdminProfileScreen()),
+              ); */
+              context.push('/admin-profile');
             },
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -181,41 +183,46 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   }
 
   Widget _emptyUI() => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox_rounded,
-                size: 90, color: Colors.white.withOpacity(0.2)),
-            const SizedBox(height: 10),
-            const Text("No Orders Yet",
-                style: TextStyle(color: Colors.white70, fontSize: 20)),
-          ],
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.inbox_rounded,
+          size: 90,
+          color: Colors.white.withOpacity(0.2),
         ),
-      );
+        const SizedBox(height: 10),
+        const Text(
+          "No Orders Yet",
+          style: TextStyle(color: Colors.white70, fontSize: 20),
+        ),
+      ],
+    ),
+  );
 
   Widget _loadingShimmer() => ListView.builder(
-        itemCount: 6,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemBuilder: (_, __) => Shimmer.fromColors(
-          baseColor: Colors.grey.shade900,
-          highlightColor: Colors.grey.shade700,
-          child: Container(
-            height: 100,
-            margin: const EdgeInsets.only(bottom: 14),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
+    itemCount: 6,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    itemBuilder: (_, __) => Shimmer.fromColors(
+      baseColor: Colors.grey.shade900,
+      highlightColor: Colors.grey.shade700,
+      child: Container(
+        height: 100,
+        margin: const EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(16),
         ),
-      );
+      ),
+    ),
+  );
 
   Widget _errorUI(error) => Center(
-        child: Text(
-          "Error: $error",
-          style: const TextStyle(color: Colors.redAccent, fontSize: 16),
-        ),
-      );
+    child: Text(
+      "Error: $error",
+      style: const TextStyle(color: Colors.redAccent, fontSize: 16),
+    ),
+  );
 
   Widget _bottomNav() {
     return Container(
@@ -259,8 +266,11 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon,
-                color: selected ? Colors.white : Colors.white54, size: 22),
+            Icon(
+              icon,
+              color: selected ? Colors.white : Colors.white54,
+              size: 22,
+            ),
             const SizedBox(width: 6),
             Text(
               label,

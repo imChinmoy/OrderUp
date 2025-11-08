@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'recommendations_result_screen.dart';
 
 class RecommendationScreen extends StatefulWidget {
@@ -72,12 +73,13 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       'deliveryTime': int.parse(_deliveryTimeController.text),
     };
 
-    Navigator.push(
+/*     Navigator.push(
       context,
-      MaterialPageRoute(
+      //MaterialPageRoute(
         builder: (context) => RecommendationsResultScreen(params: params),
       ),
-    );
+    ); */
+    context.push('/recommendations-result', extra: params);
   }
 
   @override
@@ -89,7 +91,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         title: const Text(
           'Get Recommendations',

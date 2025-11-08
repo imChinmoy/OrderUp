@@ -2,6 +2,7 @@ import 'package:client/features/order/data/models/cart_item.dart';
 import 'package:client/features/order/presentation/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/entities/menu_item_entity.dart';
 
 class FoodDetailScreen extends ConsumerStatefulWidget {
@@ -45,7 +46,7 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
             top: 40,
             right: 20,
             child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, 'cart'),
+              onTap: () => context.push('/cart'),
               child: CircleAvatar(
                 radius: 24,
                 backgroundColor: Colors.deepOrange,
@@ -155,7 +156,7 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
             color: Colors.white,
             size: 20,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       actions: [
