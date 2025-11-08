@@ -2,19 +2,36 @@ import { Order } from "../models/orderModel.js";
 import { MenuItem } from "../models/menuItem.model.js";
 import { io } from "../index.js";
 import CustomError from "../utils/customError.js";
+import User from "../models/user.model.js";
 
 export const createOrder = async (req, res, next) => {
   try {
     const { userId, items, totalAmount } = req.body;
-
+    const detailedItems = [];
     for (const item of items) {
       const menuItem = await MenuItem.findById(item.itemId);
       if (!menuItem) {
         throw new CustomError(`Invalid item: ${item.name}`, 400);
       }
-    }
+      detailedItems.push({
+    itemId: menuItem._id,
+    name: menuItem.name,
+    quantity: item.quantity || 1,
+    price: menuItem.price
+  });
 
-    const order = await Order.create({ userId, items, totalAmount });
+    }
+    const order = await Order.create({ userId, items: detailedItems, totalAmount });
+    
+    await User.findByIdAndUpdate(userId, {
+    $push: {
+      orders: {
+        orderId: order._id,
+        items: detailedItems,
+        totalAmount
+      }
+    }
+  });
     if (io) io.to("admins").emit("newOrder", order);
     res.status(201).json(order);
   } catch (error) {

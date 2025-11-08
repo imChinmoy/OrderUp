@@ -19,7 +19,7 @@ export const getChatbotResponse = async (req, res, next) => {
       { user_query },
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 30000,
+        timeout: 10*60000,  // 10 minutes timeout
       }
     );
 

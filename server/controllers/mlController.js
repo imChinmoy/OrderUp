@@ -16,7 +16,7 @@ export const getTop10Recommendations = async (req, res, next) => {
       { customer_id },
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 60000, // 60 seconds timeout
+        timeout: 10*60000, // 10 minutes timeout
       }
     );
 
