@@ -22,7 +22,7 @@ class StudentOrderSocketDataSource {
 
     _socket!.onConnect((_) {
       dev.log("✅ Student socket connected");
-      _socket!.emit("join", ["student", userId]);
+      _socket!.emit("join", "user:$userId"); 
       dev.log("📌 JOINED student room: $userId");
     });
 
