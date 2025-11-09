@@ -4,55 +4,75 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+/* final dummyOrders = [
+  OrderEntity(
+    id: "1",
+    userId: "123",
+    userName: "You",
+    status: "delivered",
+    paymentStatus: "paid",
+    totalAmount: 150,
+    createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+    items: [
+      OrderItemEntity(
+        itemId: "A1",
+        name: "Paneer Roll",
+        quantity: 1,
+        price: 80,
+        imageUrl: "https://spicecravings.com/wp-content/uploads/2020/12/Paneer-kathi-Roll-Featured-1.jpg",
+      ),
+      OrderItemEntity(
+        itemId: "B2",
+        name: "Cold Coffee",
+        quantity: 1,
+        price: 70,
+        imageUrl: "https://via.placeholder.com/64",
+      ),
+    ],
+  ),
+  OrderEntity(
+    id: "2",
+    userId: "123",
+    userName: "You",
+    status: "preparing",
+    paymentStatus: "pending",
+    totalAmount: 220,
+    createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+    items: [
+      OrderItemEntity(
+        itemId: "C3",
+        name: "Margherita Pizza",
+        quantity: 1,
+        price: 220,
+        imageUrl: "https://via.placeholder.com/64",
+      ),
+    ],
+  ),
+]; */
+
 class StudentOrdersScreen extends ConsumerWidget {
   const StudentOrdersScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersAsync = ref.watch(studentOrdersStreamProvider);
-
+    //final ordersAsync = AsyncValue.data(dummyOrders);
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D14),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A24),
-        elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Your Orders',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(70),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white.withOpacity(0.08)),
-              ),
-              child: TextField(
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Search by restaurant or dish',
-                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
-                  prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.4)),
-                  suffixIcon: const Icon(Icons.mic, color: Colors.deepOrange),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+  backgroundColor: const Color(0xFF1A1A24),
+  elevation: 1,
+  automaticallyImplyLeading: false, // <-- removes back button
+  title: const Text(
+    'My Orders',
+    style: TextStyle(
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+),
+
       body: ordersAsync.when(
         loading: () => const Center(
           child: CircularProgressIndicator(color: Colors.deepOrange),
@@ -82,8 +102,11 @@ class StudentOrdersScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_bag_outlined,
-              size: 90, color: Colors.white.withOpacity(0.2)),
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: 90,
+            color: Colors.white.withOpacity(0.2),
+          ),
           const SizedBox(height: 14),
           const Text(
             "No orders placed yet",
@@ -93,7 +116,7 @@ class StudentOrdersScreen extends ConsumerWidget {
           Text(
             "Your orders will appear here",
             style: TextStyle(color: Colors.white.withOpacity(0.4)),
-          )
+          ),
         ],
       ),
     );
@@ -126,9 +149,7 @@ class StudentOrdersScreen extends ConsumerWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                o.items?.isNotEmpty == true 
-                    ? o.items!.first.imageUrl 
-                    : '',
+                o.items?.isNotEmpty == true ? o.items!.first.imageUrl : '',
                 width: 64,
                 height: 64,
                 fit: BoxFit.cover,
@@ -137,58 +158,73 @@ class StudentOrdersScreen extends ConsumerWidget {
                     width: 64,
                     height: 64,
                     color: Colors.white.withOpacity(0.1),
-                    child: const Icon(Icons.fastfood, color: Colors.white54, size: 28),
+                    child: const Icon(
+                      Icons.fastfood,
+                      color: Colors.white54,
+                      size: 28,
+                    ),
                   );
                 },
               ),
             ),
             const SizedBox(width: 12),
-            
+
             // Order Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    'Order ID: ${o.id}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
                   // Order Items List
                   if (o.items != null)
-                    ...o.items!.map((item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            width: 8,
-                            height: 8,
-                            decoration: const BoxDecoration(
-                              color: Colors.deepOrange,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${item.quantity} x',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.white70,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              item.name,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
+                    ...o.items!.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 4),
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Color.fromARGB(255, 80, 228, 50),
+                                shape: BoxShape.circle,
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 6),
+                            Text(
+                              '${item.quantity} x',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                item.name,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    )),
+                    ),
                   const SizedBox(height: 8),
-                  
+
                   // Order Date
                   Text(
                     'Order placed on ${formatter.format(o.createdAt ?? DateTime.now())}',
@@ -198,7 +234,7 @@ class StudentOrdersScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  
+
                   // Status
                   Text(
                     o.status.toUpperCase(),
@@ -211,7 +247,7 @@ class StudentOrdersScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            
+
             // Price and Menu
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
