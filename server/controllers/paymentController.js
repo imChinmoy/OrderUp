@@ -54,7 +54,7 @@ export const createRazorpayOrder = async (req, res, next) => {
 
 export const verifyPayment = async (req, res, next) => {
   try {
-    const { orderId, paymentId, signature, userId } = req.body;
+    const { orderId, paymentId, signature, userId, items, totalAmount } = req.body;
 
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET)
@@ -73,6 +73,8 @@ export const verifyPayment = async (req, res, next) => {
       {
         paymentStatus: "paid",
         paymentId,
+        items,
+        totalAmount,
         status: "received",
         updatedAt: Date.now(),
       },
@@ -90,7 +92,7 @@ export const verifyPayment = async (req, res, next) => {
     if (io) io.to("admins").emit("orderUpdated", updated);
 
     // ✅ Notify this user
-    if (io) io.to(userId.toString()).emit("orderUpdated", updated);
+    if (io) io.to(`user:${userId}`).emit("orderUpdated", updated);
 
     return res.status(200).json({
       success: true,
