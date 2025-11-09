@@ -1,19 +1,19 @@
 import axios from "axios";
 import CustomError from "../utils/customError.js";
 
-const ML_MODEL_URL = "https://personal-recomendation-1.onrender.com/predict";
+const ML_MODEL_URL = "https://recommend-88ef.onrender.com/predict";
 
 export const getTop10Recommendations = async (req, res, next) => {
   try {
-    const { customer_id } = req.body;
+    const { Category, Group_Size, Rating, Avg_Spend, Delivery_Time } = req.body;
 
-    if (!customer_id) {
-      throw new CustomError("customer_id is required", 400);
+    if (!Category) {
+      throw new CustomError("Category is required", 400);
     }
-
+    
     const response = await axios.post(
       ML_MODEL_URL,
-      { customer_id },
+      {  Category, Group_Size, Rating, Avg_Spend, Delivery_Time},
       {
         headers: { "Content-Type": "application/json" },
         timeout: 10*60000, // 10 minutes timeout
