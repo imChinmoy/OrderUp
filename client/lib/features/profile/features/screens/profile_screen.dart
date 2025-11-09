@@ -1,3 +1,4 @@
+import 'package:client/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:client/features/profile/features/providers/profile_provider.dart';
 import 'package:client/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -189,7 +190,7 @@ class ProfileScreen extends ConsumerWidget {
             icon: Icons.shopping_bag_outlined,
             title: "Order History",
             subtitle: "View all your past orders",
-            onTap: () {},
+            onTap: () => context.push('/order-history'),
           ),
           _buildMenuItem(
             icon: Icons.notifications_outlined,
@@ -201,7 +202,14 @@ class ProfileScreen extends ConsumerWidget {
             icon: Icons.help_outline,
             title: "Help & Support",
             subtitle: "Get help and contact support",
-            onTap: () {},
+            onTap: () {
+                showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const ChatbotScreen(),
+          );
+        },
           ),
           _buildMenuItem(
             icon: Icons.info_outline,

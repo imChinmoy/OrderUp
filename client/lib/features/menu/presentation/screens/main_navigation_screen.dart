@@ -34,10 +34,22 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF16161F),
-      body: IndexedStack(index: _selectedBottomIndex, children: _screens),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+    return WillPopScope(
+      onWillPop: () async {
+        // If we are NOT on Home screen, go to Home instead of leaving app
+        if (_selectedBottomIndex != 0) {
+          setState(() {
+            _selectedBottomIndex = 0;
+          });
+          return false; // prevents exiting app
+        }
+        return true; // allow exit when already on Home
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF16161F),
+        body: IndexedStack(index: _selectedBottomIndex, children: _screens),
+        bottomNavigationBar: _buildBottomNavigationBar(),
+      ),
     );
   }
 
@@ -63,15 +75,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+
               Expanded(child: _buildNavItem(Icons.home, "Home", 0)),
               Expanded(
-                child: _buildNavItem(Icons.notifications_outlined, "Notif", 1),
+                child: _buildNavItem(Icons.notifications_outlined, "Orders", 1),
               ),
+
               _buildFloatingActionButton(),
-              Expanded(child: _buildNavItem(Icons.favorite_border, "Fav", 2)),
-              Expanded(
-                child: _buildNavItem(Icons.person_outline, "Profile", 3),
-              ),
+              _buildNavItem(Icons.favorite_border, "Fav", 2),
+              _buildNavItem(Icons.person_outline, "Profile", 3),
             ],
           ),
         ),
@@ -81,41 +93,16 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
 
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = _selectedBottomIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedBottomIndex = index;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? Colors.deepOrange
-                  : Colors.white.withOpacity(0.4),
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? Colors.deepOrange
-                    : Colors.white.withOpacity(0.4),
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ],
-        ),
+    return Expanded(
+      child: AnimatedNavItem(
+        icon: icon,
+        label: label,
+        isActive: isSelected,
+        onTap: () {
+          setState(() {
+            _selectedBottomIndex = index;
+          });
+        },
       ),
     );
   }
@@ -123,7 +110,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   Widget _buildFloatingActionButton() {
     return GestureDetector(
       onTap: () {
-        context.push('/recommendations'); // ✅ Already correct
+        context.push('/recommendations');
       },
       child: Container(
         width: 56,
@@ -147,6 +134,72 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           Icons.lightbulb_outline,
           color: Colors.white,
           size: 28,
+        ),
+      ),
+    );
+  }
+}
+
+class AnimatedNavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const AnimatedNavItem({
+    Key? key,
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque, // Makes entire area tappable
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: isActive ? -10.0 : 0.0),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(0, value),
+                  child: Transform.scale(
+                    scale: isActive ? 1.25 : 1.0,
+                    child: Icon(
+                      icon,
+                      color: isActive
+                          ? Colors.deepOrange
+                          : Colors.white.withOpacity(0.4),
+                      size: 24,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive
+                    ? Colors.deepOrange
+                    : Colors.white.withOpacity(0.4),
+                fontSize: 11,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ],
         ),
       ),
     );
@@ -181,5 +234,3 @@ class FavoritesScreen extends StatelessWidget {
     );
   }
 }
-
-// GoRouter handles search/cart navigation now from home_screen.dart

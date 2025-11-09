@@ -54,7 +54,7 @@ export const createRazorpayOrder = async (req, res, next) => {
 
 export const verifyPayment = async (req, res, next) => {
   try {
-    const { orderId, paymentId, signature, userId, items, totalAmount } = req.body;
+    const { orderId, paymentId, signature, userId } = req.body;
 
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET)
@@ -68,8 +68,16 @@ export const verifyPayment = async (req, res, next) => {
       });
     }
 
-    // ✅ Fetch existing pending order
-    const existing = await Order.findOne({ razorpayOrderId: orderId });
+    const updated = await Order.findOneAndUpdate(
+      { razorpayOrderId: orderId },
+      {
+        paymentStatus: "paid",
+        paymentId,
+        status: "received",
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
 
     if (!updated) {
       return res.status(404).json({
@@ -81,27 +89,19 @@ export const verifyPayment = async (req, res, next) => {
     // ✅ Notify admin
     if (io) io.to("admins").emit("orderUpdated", updated);
 
-    existing.paymentStatus = "paid";
-    existing.paymentId = paymentId;
-    existing.status = "received";
-    existing.updatedAt = Date.now();
+    // ✅ Notify this user
+    if (io) io.to(userId.toString()).emit("orderUpdated", updated);
 
-    await existing.save();
-
-    // ✅ Emit correct socket event
-    if (io) io.to("admins").emit("orderUpdated", existing);
-    if (io) io.to(userId.toString()).emit("orderUpdated", existing);
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Payment verified",
-      order: existing,
+      order: updated,
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
       message: "Verification error",
-      error: error.message,
+      error: err.message,
     });
   }
 };

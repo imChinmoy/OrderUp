@@ -88,7 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 20),
                 Align(
                   alignment: Alignment.topRight,
-                  child: TextButton(
+                  /* child: TextButton(
                     onPressed: () {
                       /* Navigator.pushReplacement(
                         context,
@@ -106,7 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       "Skip",
                       style: TextStyle(color: AppColors.textGray, fontSize: 14),
                     ),
-                  ),
+                  ), */
                 ),
                 Container(
                   padding: const EdgeInsets.all(32),

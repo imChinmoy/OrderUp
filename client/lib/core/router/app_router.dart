@@ -8,10 +8,12 @@ import 'package:client/features/order/presentation/screens/cart_screen.dart';
 import 'package:client/features/menu/presentation/screens/food_detail_screen.dart';
 import 'package:client/features/order/presentation/screens/order_success_screen.dart';
 import 'package:client/features/order/presentation/screens/order_summary_screen.dart';
+import 'package:client/features/orderHistory/presentation/screens/student_order_screen.dart';
 import 'package:client/features/payment/presentation/screens/razorpay_screen.dart';
 import 'package:client/features/recommendations/presentation/screens/recommendation_screen.dart';
 import 'package:client/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:client/features/recommendations/presentation/screens/recommendations_result_screen.dart';
+import 'package:client/features/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,8 +24,11 @@ import '../../features/auth/data/models/session_model.dart';
 // Router Provider
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/splash',
     redirect: (context, state) async {
+      if (state.matchedLocation == '/splash') {
+        return null;
+      }
       // Check if user is logged in
       final box = Hive.box<SessionModel>('sessionBox');
       final session = box.get('current_session');
@@ -77,7 +82,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'home',
         builder: (context, state) => const MainNavigationScreen(),
       ),
-
+      GoRoute(
+        path: '/order-history', 
+        name: 'order-history', 
+        builder: (context, state) => const StudentOrdersScreen()
+      ),
       // Search
       GoRoute(
         path: '/search',
@@ -108,7 +117,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'recommendations',
         builder: (context, state) => const RecommendationScreen(),
       ),
-
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       // Admin Routes
       GoRoute(
         path: '/admin',
