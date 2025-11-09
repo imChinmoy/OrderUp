@@ -86,8 +86,23 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   }
 
   Widget _buildHeader() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    // Responsive sizing based on screen dimensions
+    final avatarRadius = screenWidth < 360 ? 20.0 : 24.0;
+    final settingsRadius = screenWidth < 360 ? 18.0 : 20.0;
+    final titleFontSize = screenWidth < 360 ? 14.0 : 16.0;
+    final nameFontSize = screenWidth < 360 ? 26.0 : (screenWidth < 400 ? 28.0 : 32.0);
+    final emailFontSize = screenWidth < 360 ? 12.0 : 13.0;
+    
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        screenHeight < 700 ? 12 : 16,
+        20,
+        screenHeight < 700 ? 16 : 20,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -103,19 +118,19 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.deepOrange.withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
                 child: CircleAvatar(
-                  radius: 28,
+                  radius: avatarRadius,
                   backgroundColor: Colors.transparent,
                   child: Text(
                     adminName.isNotEmpty ? adminName[0].toUpperCase() : "A",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 26,
+                      fontSize: avatarRadius * 0.85,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -133,18 +148,18 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                     boxShadow: [
                       BoxShadow(
                         color: Colors.deepOrange.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                   child: CircleAvatar(
-                    radius: 22,
+                    radius: settingsRadius,
                     backgroundColor: Colors.transparent,
-                    child: const Icon(
+                    child: Icon(
                       Icons.settings,
                       color: Colors.white,
-                      size: 24,
+                      size: settingsRadius * 1.1,
                     ),
                   ),
                 ),
@@ -152,18 +167,18 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             ],
           ),
 
-          const SizedBox(height: 28),
+          SizedBox(height: screenHeight < 700 ? 16 : 20),
 
           // Greeting section
           ShaderMask(
             shaderCallback: (bounds) => LinearGradient(
               colors: [Colors.white, Colors.white.withOpacity(0.9)],
             ).createShader(bounds),
-            child: const Text(
+            child: Text(
               "Admin Panel",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: titleFontSize,
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.5,
               ),
@@ -176,8 +191,8 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                   baseColor: Colors.grey.shade800,
                   highlightColor: Colors.grey.shade600,
                   child: Container(
-                    height: 40,
-                    width: 200,
+                    height: nameFontSize * 1.3,
+                    width: screenWidth * 0.5,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -190,25 +205,29 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                   ).createShader(bounds),
                   child: Text(
                     "$adminName 👋",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 36,
+                      fontSize: nameFontSize,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -1,
+                      letterSpacing: -0.8,
                       height: 1.2,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
 
           if (!loadingUser) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
               adminEmail,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.5),
-                fontSize: 14,
+                fontSize: emailFontSize,
                 fontWeight: FontWeight.w400,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ],
