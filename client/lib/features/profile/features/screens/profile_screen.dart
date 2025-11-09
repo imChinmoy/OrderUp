@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:client/features/auth/presentation/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:client/core/widgets/floating_background_icons.dart';
+import 'dart:ui'; // Import for BackdropFilter
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -28,18 +30,28 @@ class ProfileScreen extends ConsumerWidget {
             (user?['avatar'] ??
             "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg");
 
-        return SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: 30),
-                _buildProfileSection(displayName, email, avatarUrl),
-                const SizedBox(height: 30),
-                _buildMenuOptions(context, ref),
-                const SizedBox(height: 100),
-              ],
-            ),
+        return Scaffold(
+          backgroundColor: const Color(0xFF0D0D14),
+          body: Stack(
+            children: [
+              const FloatingBackgroundIcons(
+                imagePath: 'assets/background-float.png',
+              ),
+              SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildHeader(context),
+                      const SizedBox(height: 30),
+                      _buildProfileSection(displayName, email, avatarUrl),
+                      const SizedBox(height: 30),
+                      _buildMenuOptions(context, ref),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -203,13 +215,13 @@ class ProfileScreen extends ConsumerWidget {
             title: "Help & Support",
             subtitle: "Get help and contact support",
             onTap: () {
-                showModalBottomSheet(
+              showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (context) => const ChatbotScreen(),
-          );
-        },
+              );
+            },
           ),
           _buildMenuItem(
             icon: Icons.info_outline,
@@ -232,45 +244,57 @@ class ProfileScreen extends ConsumerWidget {
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F2E),
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.deepOrange.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: Colors.deepOrange, size: 24),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            subtitle,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
-              fontSize: 12,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.deepOrange.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: Colors.deepOrange, size: 24),
+              ),
+              title: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white.withOpacity(0.3),
+                size: 16,
+              ),
+              onTap: onTap,
             ),
           ),
         ),
-        trailing: Icon(
-          Icons.arrow_forward_ios,
-          color: Colors.white.withOpacity(0.3),
-          size: 16,
-        ),
-        onTap: onTap,
       ),
     );
   }
@@ -353,11 +377,8 @@ class ProfileScreen extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () async {
-                // Close dialog first
                 context.pop();
-                ;
 
-                // Show loading indicator
                 showDialog(
                   context: context,
                   barrierDismissible: false,
@@ -370,25 +391,19 @@ class ProfileScreen extends ConsumerWidget {
                   },
                 );
 
-                // Perform logout
-                // Perform logout
                 final success = await ref
                     .read(authStateProvider.notifier)
                     .logout();
 
-                // Close loading indicator
                 if (context.mounted) {
                   context.pop();
-                  ;
                 }
 
                 if (success) {
-                  // Navigate to login screen and clear entire navigation stack
                   if (context.mounted) {
                     context.go('/login');
                   }
                 } else {
-                  // Show error message
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

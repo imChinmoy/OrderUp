@@ -23,7 +23,9 @@ class SocketOrderDataSource {
     _socket!.onConnect((_) {
       dev.log("✅ Socket connected");
 
-      _socket!.emit("join", [isAdmin ? "admin" : "student", userId]);
+      _socket!.emit("join", "admins");
+
+
       dev.log("📌 Sent JOIN => role: ${isAdmin ? 'admin' : 'student'} , user: $userId");
     });
 

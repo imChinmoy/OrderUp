@@ -42,7 +42,12 @@ const userSchema = new Schema(
     totalAmount: Number
       },
     ],
+  emailVerified: {
+  type: Boolean,
+  default: false
   },
+  verificationToken: String,
+  verificationTokenExpiry: Date,},
   {
     timestamps: true,
   }

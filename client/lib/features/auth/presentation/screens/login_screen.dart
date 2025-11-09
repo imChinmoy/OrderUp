@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:client/features/admin/presentation/screens/admin_menu_screen.dart';
 import 'package:client/features/admin/presentation/screens/admin_screen.dart';
 import 'package:client/features/auth/presentation/providers/auth_provider.dart';
+import 'package:client/core/widgets/floating_background_icons.dart';
 import 'package:client/features/menu/presentation/screens/main_navigation_screen.dart';
 import 'package:client/features/profile/features/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import '../widgets/custom_text_field.dart';
 import 'signup_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../menu/presentation/screens/home_screen.dart';
+
 
 final loginParamsProvider = StateProvider<Map<String, String>?>((ref) => null);
 
@@ -76,16 +78,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
 
-    return Scaffold(
-      backgroundColor: AppColors.primaryDark,
-      body: SafeArea(
+return Scaffold(
+  backgroundColor: AppColors.primaryDark,
+  body: Stack(  // Wrap in Stack
+    children: [
+      // Background floating icons
+      const FloatingBackgroundIcons(
+        imagePath: 'assets/background-float.png',
+      ),
+      // Your existing content
+      SafeArea(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                
+              const SizedBox(height: 20),
                 Align(
                   alignment: Alignment.topRight,
                   /* child: TextButton(
@@ -336,6 +346,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
-    );
+    ],
+  ),
+);
   }
 }

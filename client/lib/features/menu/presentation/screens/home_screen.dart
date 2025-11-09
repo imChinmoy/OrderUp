@@ -1,3 +1,4 @@
+import 'package:client/core/widgets/floating_background_icons.dart';
 import 'package:client/features/menu/presentation/providers/menu_provider.dart';
 import 'package:client/features/menu/presentation/screens/food_detail_screen.dart';
 import 'package:client/features/location/presentation/providers/location_provider.dart';
@@ -31,13 +32,20 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D14),
-      body: menuState.when(
-        loading: () => _buildLoadingPlaceholder(),
-        error: (_, __) => _buildContent(context, [], trendingState),
-        data: (menuItems) {
-          _setCategories(menuItems);
-          return _buildContent(context, menuItems, trendingState);
-        },
+      body: Stack(
+        children: [
+          const FloatingBackgroundIcons(
+            imagePath: 'assets/home-background.png',
+          ),
+          menuState.when(
+            loading: () => _buildLoadingPlaceholder(),
+            error: (_, __) => _buildContent(context, [], trendingState),
+            data: (menuItems) {
+              _setCategories(menuItems);
+              return _buildContent(context, menuItems, trendingState);
+            },
+          ),
+        ],
       ),
       floatingActionButton: _buildChatbotFAB(),
     );
@@ -99,9 +107,9 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            const Color(0xFF0D0D14),
-            const Color(0xFF1A1A2E),
-            const Color(0xFF0D0D14),
+            const Color(0xFF0D0D14).withOpacity(0.1),
+            const Color(0xFF1A1A2E).withOpacity(0.1),
+            const Color(0xFF0D0D14).withOpacity(0.1),
           ],
           stops: const [0.0, 0.3, 1.0],
         ),
@@ -851,98 +859,92 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
     );
   }
 
-Widget _buildFoodCard(MenuItemEntity item) {
-  return GestureDetector(
-    onTap: () {
-      context.push('/food-detail', extra: item);
-    },
-    child: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF29293A),
-            const Color(0xFF1F1F2E),
+  Widget _buildFoodCard(MenuItemEntity item) {
+    return GestureDetector(
+      onTap: () {
+        context.push('/food-detail', extra: item);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [const Color(0xFF29293A), const Color(0xFF1F1F2E)],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.40),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.08),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.40),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image with rating badge overlay
-          Expanded(
-            flex: 7, // Takes 70% of card height
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image with rating badge overlay
+            Expanded(
+              flex: 7, // Takes 70% of card height
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                    child: ImageWithShimmer(
+                      imageUrl: item.imageUrl,
+                      height: double.infinity,
+                      width: double.infinity,
+                    ),
                   ),
-                  child: ImageWithShimmer(
-                    imageUrl: item.imageUrl,
-                    height: double.infinity,
-                    width: double.infinity,
-                  ),
-                ),
-                // Rating badge
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
+                  // Rating badge
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.star_rounded,
-                              color: Colors.amber.shade400,
-                              size: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 0.5,
                             ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              "4.8",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber.shade400,
+                                size: 14,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              const Text(
+                                "4.8",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                // Category badge
-                /* Positioned(
+                  // Category badge
+                  /* Positioned(
                   top: 8,
                   right: 8,
                   child: Container(
@@ -979,119 +981,121 @@ Widget _buildFoodCard(MenuItemEntity item) {
                     ),
                   ),
                 ), */
-              ],
-            ),
-          ),
-          
-          // Content section - Reduced padding
-          Expanded(
-            flex: 3, // Takes 30% of card height
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Food name
-                  Text(
-                    item.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                      color: Colors.white,
-                      letterSpacing: -0.3,
-                      height: 1.1,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  
-                  // Price and Add button row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Price
-                      Flexible(
-                        child: Text(
-                          "₹${item.price}",
-                          style: TextStyle(
-                            color: Colors.deepOrange.shade400,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      
-                      // Add to cart button
-                      GestureDetector(
-                        onTap: () {
-                          // Add to cart with quantity 1
-                          ref.read(cartProvider.notifier).addToCart(
-                                CartItem(
-                                  id: item.id,
-                                  name: item.name,
-                                  imageUrl: item.imageUrl,
-                                  price: item.price.toDouble(),
-                                  quantity: 1,
-                                ),
-                              );
-
-                          // Show snackbar
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${item.name} added to cart ✅'),
-                              duration: const Duration(seconds: 2),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: Colors.deepOrange,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              margin: const EdgeInsets.all(16),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFFFF8C42),
-                                Colors.deepOrange.shade700,
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.deepOrange.withOpacity(0.4),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.add_rounded,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            // Content section - Reduced padding
+            Expanded(
+              flex: 3, // Takes 30% of card height
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Food name
+                    Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: Colors.white,
+                        letterSpacing: -0.3,
+                        height: 1.1,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                    // Price and Add button row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Price
+                        Flexible(
+                          child: Text(
+                            "₹${item.price}",
+                            style: TextStyle(
+                              color: Colors.deepOrange.shade400,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        // Add to cart button
+                        GestureDetector(
+                          onTap: () {
+                            // Add to cart with quantity 1
+                            ref
+                                .read(cartProvider.notifier)
+                                .addToCart(
+                                  CartItem(
+                                    id: item.id,
+                                    name: item.name,
+                                    imageUrl: item.imageUrl,
+                                    price: item.price.toDouble(),
+                                    quantity: 1,
+                                  ),
+                                );
+
+                            // Show snackbar
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${item.name} added to cart ✅'),
+                                duration: const Duration(seconds: 2),
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: Colors.deepOrange,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                margin: const EdgeInsets.all(16),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFFF8C42),
+                                  Colors.deepOrange.shade700,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.deepOrange.withOpacity(0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class ImageWithShimmer extends StatelessWidget {

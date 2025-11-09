@@ -2,6 +2,11 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import validator from 'validator';
 import CustomError from '../utils/customError.js'; // your custom error class
+import sendVerificationEmail from "../utils/sendVerificationEmail.js";
+import crypto from "crypto";
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 const generateToken = (user) => {
   const payload = {
@@ -54,12 +59,16 @@ export const registerHandler = async (req, res, next) => {
       role: role || 'student',
     });
 
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    newUser.verificationToken = verificationToken;
+    newUser.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);// 24 hours
+
     await newUser.save();
-    const token = generateToken(newUser);
+  
+    await sendVerificationEmail(newUser.email, verificationToken);
 
     res.status(201).json({
-      message: 'User registered successfully.',
-      token,
+      message: 'User registered successfully. A Verification Email is sent to your email ID',
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -71,6 +80,32 @@ export const registerHandler = async (req, res, next) => {
     next(error); // pass to centralized error handler
   }
 };
+
+export const verifyEmailHandler = async (req, res, next) => {
+  console.log("verifyEmailHandler called, query token:", req.query.token);
+  try {
+    const { token } = req.query;
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      throw new CustomError("Invalid or expired verification token.", 400);
+    }
+
+    user.emailVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiry = undefined;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Email verified successfully." });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 export const loginHandler = async (req, res, next) => {
   try {
@@ -88,6 +123,10 @@ export const loginHandler = async (req, res, next) => {
     if (!user) {
       throw new CustomError('Invalid credentials.', 400);
     }
+
+        if (!validator.isEmail(email)) {
+  throw new CustomError('Invalid email format.', 400);
+}
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {

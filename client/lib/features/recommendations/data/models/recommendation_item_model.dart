@@ -1,3 +1,5 @@
+import 'package:client/features/recommendations/domain/entities/recommendation_entity.dart';
+
 class RecommendationItemModel {
   final String id;
   final String name;
@@ -31,4 +33,18 @@ class RecommendationItemModel {
       category: json['category'] ?? "",
     );
   }
+
+  RecommendationEntity toEntity() {
+  return RecommendationEntity(
+    id: id,
+    name: name,
+    description: description,
+    price: price,
+    rating: rating,
+    deliveryTime: deliveryTime,
+    imageUrl: imageUrl,
+    category: category,
+  );
+}
+
 }
