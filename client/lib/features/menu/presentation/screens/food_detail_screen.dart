@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:client/features/order/data/models/cart_item.dart';
 import 'package:client/features/order/presentation/providers/cart_provider.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/menu_item_entity.dart';
+import 'package:client/core/widgets/floating_background_icons.dart';
 
 class FoodDetailScreen extends ConsumerStatefulWidget {
   final MenuItemEntity item;
@@ -20,18 +22,22 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
   bool isFavorite = false;
   bool addedSuccess = false;
 
-
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
     log(widget.item.isAvailable.toString());
     log(widget.item.name.toString());
 
-
     return Scaffold(
       backgroundColor: const Color(0xFF16161F),
       body: Stack(
         children: [
+          // ADD THIS - Floating background (must be first)
+          const FloatingBackgroundIcons(
+            imagePath: 'assets/home-background.png', // or use a different image
+          ),
+
+          // Rest of your existing Stack children remain the same
           CustomScrollView(
             slivers: [
               _buildAppBar(),
@@ -42,7 +48,6 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
               ),
             ],
           ),
-
 
           _buildBottomOrderBar(),
 
@@ -184,19 +189,13 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
   }
 
   Widget _buildImageSection() {
-    final bool isAvailable = widget.item.isAvailable ? true : false ;
+    final bool isAvailable = widget.item.isAvailable ? true : false;
     return Container(
       margin: const EdgeInsets.all(16),
       height: 280,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepOrange.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        
       ),
       child: Stack(
         children: [
@@ -275,16 +274,16 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
               Expanded(
                 child: _buildInfoCard(
                   Icons.category_outlined,
-                  "Category",
-                  widget.item.category ?? "Food",
+                  "",
+                  widget.item.category ?? "Snacks",
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildInfoCard(
                   Icons.access_time,
-                  "Prep Time",
-                  "02-03 min",
+                  "",
+                  "2-3 min",
                 ),
               ),
             ],
@@ -352,36 +351,53 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
     String value, {
     bool full = false,
   }) {
-    return Container(
-      width: full ? double.infinity : null,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F2E),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.deepOrange.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          width: full ? double.infinity : null,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.15),
+              width: 1.5,
             ),
-            child: Icon(icon, color: Colors.deepOrange, size: 20),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              "$label: $value",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-              overflow: TextOverflow.ellipsis,
-            ),
+            ],
           ),
-        ],
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.deepOrange.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: Colors.deepOrange, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  "$label: $value",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -463,30 +479,47 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
   }
 
   Widget _buildAdditionalInfo() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F2E),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Additional Information",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.15),
+              width: 1.5,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildInfoRow(Icons.restaurant_menu, "Type", "Main Course"),
-          const SizedBox(height: 12),
-          _buildInfoRow(Icons.local_fire_department, "Calories", "450 kcal"),
-          const SizedBox(height: 12),
-          _buildInfoRow(Icons.people, "Serves", "1-2 people"),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Additional Information",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow(Icons.restaurant_menu, "Type", "Main Course"),
+              const SizedBox(height: 12),
+              _buildInfoRow(Icons.local_fire_department, "Calories", "450 kcal"),
+              const SizedBox(height: 12),
+              _buildInfoRow(Icons.people, "Serves", "1-2 people"),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -514,7 +547,7 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
   }
 
   Widget _buildBottomOrderBar() {
-    final bool isAvailable = widget.item.isAvailable ? true : false ;
+    final bool isAvailable = widget.item.isAvailable ? true : false;
     return Positioned(
       bottom: 0,
       left: 0,

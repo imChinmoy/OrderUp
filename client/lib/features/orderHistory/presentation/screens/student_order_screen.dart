@@ -1,10 +1,9 @@
 import 'package:client/features/admin/domain/entities/order_entity.dart';
 import 'package:client/features/orderHistory/presentation/providers/student_order_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:client/core/widgets/floating_background_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-
-
 
 class StudentOrdersScreen extends ConsumerWidget {
   const StudentOrdersScreen({super.key});
@@ -12,13 +11,13 @@ class StudentOrdersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersAsync = ref.watch(studentOrdersStreamProvider);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D14),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D0D14),
         elevation: 1,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         title: const Text(
           'My Orders',
           style: TextStyle(
@@ -29,35 +28,42 @@ class StudentOrdersScreen extends ConsumerWidget {
         ),
       ),
 
-      body: ordersAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Colors.deepOrange),
-        ),
-        error: (err, _) => Center(
-          child: Text(
-            "Error: $err",
-            style: const TextStyle(color: Colors.redAccent),
+      body: Stack(
+        children: [
+          const FloatingBackgroundIcons(
+            imagePath: 'assets/orders-background.png',
           ),
-        ),
-        data: (orders) {
-          if (orders.isEmpty) {
-            return _noOrdersUI();
-          }
+          ordersAsync.when(
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: Colors.deepOrange),
+            ),
+            error: (err, _) => Center(
+              child: Text(
+                "Error: $err",
+                style: const TextStyle(color: Colors.redAccent),
+              ),
+            ),
+            data: (orders) {
+              if (orders.isEmpty) {
+                return _noOrdersUI();
+              }
 
-          // Create a copy and sort by most recent first
-          final sortedOrders = List<OrderEntity>.from(orders);
-          sortedOrders.sort((a, b) {
-            final aDate = a.createdAt ?? DateTime(1970);
-            final bDate = b.createdAt ?? DateTime(1970);
-            return bDate.compareTo(aDate); // Most recent first
-          });
+              // Create a copy and sort by most recent first
+              final sortedOrders = List<OrderEntity>.from(orders);
+              sortedOrders.sort((a, b) {
+                final aDate = a.createdAt ?? DateTime(1970);
+                final bDate = b.createdAt ?? DateTime(1970);
+                return bDate.compareTo(aDate); // Most recent first
+              });
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: sortedOrders.length,
-            itemBuilder: (_, i) => _orderCard(context, sortedOrders[i]),
-          );
-        },
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: sortedOrders.length,
+                itemBuilder: (_, i) => _orderCard(context, sortedOrders[i]),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -140,7 +146,8 @@ class StudentOrdersScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Order ID: ${o.id}',
+                    'Order ID: ${(o.id).substring(0, 8).toUpperCase()}',
+                    //SHORTENS the Order ID to 0 digits
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.white70,
