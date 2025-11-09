@@ -25,6 +25,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _secretKeyController = TextEditingController();
   bool _isPasswordVisible = false;
   String _selectedRole = 'student';
 
@@ -33,6 +34,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _secretKeyController.dispose();
     super.dispose();
   }
 
@@ -42,6 +44,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       'password': _passwordController.text.trim(),
       'name': _nameController.text.trim(),
       'role': _selectedRole,
+      if (_selectedRole == 'admin') 'secretKey': _secretKeyController.text.trim(),
     };
     ref.read(signupParamsProvider.notifier).state = params;
   }
@@ -62,16 +65,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         ref.invalidate(profileProvider);
 
         if (role == 'admin') {
-          /* Navigator.pushReplacement(
-            context,
-          //  MaterialPageRoute(builder: (_) => const AdminScreen()),
-          ); */
           context.push('/admin');
         } else {
-          /* Navigator.pushReplacement(
-            context,
-           // MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-          ); */
           context.push('/home');
         }
         ref.read(signupParamsProvider.notifier).state = null;
@@ -156,6 +151,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+                      if (_selectedRole == 'admin')
+                        Column(
+                          children: [
+                            CustomTextField(
+                              hintText: 'Secret Key',
+                              icon: Icons.key,
+                              controller: _secretKeyController,
+                              isPassword: true,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
                       Container(
                         decoration: BoxDecoration(
                           color: AppColors.primaryDark,
