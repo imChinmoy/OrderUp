@@ -32,6 +32,14 @@ export async function getTrendingItems(req, res, next) {
     return next(new CustomError('Failed to fetch trending items', 500));
   }
 }
+export async function getAvailableItems(req, res, next) {
+  try {
+    const getAvailableItems = await MenuItem.find({ isAvailable: true });
+    res.status(200).json(getAvailableItems);
+  } catch (err) {
+    return next(new CustomError('Failed to fetch trending items', 500));
+  }
+}
 
 export async function getItemsByCategory(req, res, next) {
   const { category } = req.params;
