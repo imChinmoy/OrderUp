@@ -1,50 +1,41 @@
 import axios from "axios";
 import CustomError from "../utils/customError.js";
 
-const ML_MODEL_URL = "https://personal-recomendation-1.onrender.com/predict";
+const ML_MODEL_URL = process.env.ML_MODEL_URL;
 
-export const getTop10Recommendations = async (req, res, next) => {
+export const getRecommendations = async (req, res, next) => {
   try {
-    const { customer_id } = req.body;
+    const { Category, Group_Size, Rating, Avg_Spend, Delivery_Time } = req.body;
 
-    if (!customer_id) {
-      throw new CustomError("customer_id is required", 400);
+    if (!Category || Group_Size == null || Rating == null || Avg_Spend == null || Delivery_Time == null) {
+      throw new CustomError("All fields are required: Category, Group_Size, Rating, Avg_Spend, Delivery_Time", 400);
     }
 
-    const response = await axios.post(
-      ML_MODEL_URL,
-      { customer_id },
-      {
-        headers: { "Content-Type": "application/json" },
-        timeout: 10*60000, // 10 minutes timeout
-      }
-    );
+    const payload = {
+      Category,
+      Group_Size,
+      Rating,
+      Avg_Spend,
+      Delivery_Time
+    };
+
+    const response = await axios.post(ML_MODEL_URL, payload, {
+      headers: { "Content-Type": "application/json" },
+      timeout: 1000 * 60 * 2
+    });
 
     return res.status(200).json({
       success: true,
       recommendations: response.data,
     });
+
   } catch (error) {
     console.error("ML model error:", error.message);
 
     if (error.response) {
-      const statusCode = error.response.status || 500;
-      const message =
-        error.response.data?.error ||
-        error.response.data?.detail ||
-        "Error from ML model.";
-      return next(new CustomError(message, statusCode));
+      return next(new CustomError(error.response.data.error || "ML service error", error.response.status));
     }
 
-    if (error.code === "ECONNABORTED") {
-      return next(new CustomError("ML service timed out. Please try again later.", 504));
-    }
-
-    return next(
-      new CustomError(
-        "Failed to connect to ML service. Please try again later.",
-        500
-      )
-    );
+    return next(new CustomError("Failed to connect to ML service", 502));
   }
 };

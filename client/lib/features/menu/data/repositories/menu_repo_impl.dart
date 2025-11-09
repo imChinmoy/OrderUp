@@ -19,4 +19,10 @@ class MenuRepositoryImpl implements MenuRepository {
     final trendingModels = await menuApi.fetchTrendingMenuItems();
     return trendingModels;
   }
+  
+  @override
+  Future<List<MenuItemEntity>> getAvailableMenuItems() async {
+    final availableItems = await menuApi.fetchAvailableMenuItems();
+    return availableItems;
+  }
 }

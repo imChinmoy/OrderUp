@@ -16,7 +16,23 @@ const generateToken = (user) => {
 
 export const registerHandler = async (req, res, next) => {
   try {
-    const { email, password, name, role } = req.body;
+    const { email, password, name, role, adminSecret } = req.body;
+
+     if (role === "admin") {
+      if (!adminSecret) {
+        return res.status(400).json({
+          success: false,
+          message: "Admin secret key is required to register as admin",
+        });
+      }
+
+      if (adminSecret !== process.env.ADMIN_SECRET_KEY) {
+        return res.status(403).json({
+          success: false,
+          message: "Invalid admin secret key",
+        });
+      }
+    }
 
     if (!email || !password || !name) {
       throw new CustomError('Email, password, and name are required.', 400);

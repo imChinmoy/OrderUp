@@ -1,21 +1,21 @@
-class MenuItemEntity {
+class RecommendationEntity {
   final String id;
   final String name;
   final String description;
   final double price;
+  final double rating;
+  final int deliveryTime;
   final String imageUrl;
-  final bool isTrending;
-  final bool isAvailable;
-  final String? category;
+  final String category;
 
-  MenuItemEntity({
+  RecommendationEntity({
     required this.id,
     required this.name,
     required this.description,
     required this.price,
+    required this.rating,
+    required this.deliveryTime,
     required this.imageUrl,
-    this.isTrending = false,
-    required this.isAvailable,
-    this.category,
+    required this.category,
   });
 }

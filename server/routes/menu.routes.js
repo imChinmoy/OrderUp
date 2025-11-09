@@ -3,6 +3,7 @@ import {
   getAllItems,
   getItemById,
   getTrendingItems,
+  getAvailableItems,
   getItemsByCategory,
   createMenuItem,
   updateMenuItem,
@@ -17,6 +18,7 @@ router.use(verifyToken);
 router.post('/items', adminOnly,  createMenuItem);
 router.get('/items', getAllItems);
 router.get('/items/trending', getTrendingItems);
+router.get('/items/available', getAvailableItems);
 router.get('/items/category/:category', getItemsByCategory);
 router.get('/items/:id', getItemById);
 router.put('/items/:id', adminOnly, updateMenuItem);    
