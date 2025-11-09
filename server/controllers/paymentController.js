@@ -2,10 +2,11 @@ import crypto from "crypto";
 import { razorpay } from "../razorpay.js";
 import { Order } from "../models/orderModel.js";
 import { io } from "../index.js";
+import CustomError from "../utils/customError.js";
 
-export const createRazorpayOrder = async (req, res) => {
+export const createRazorpayOrder = async (req, res, next) => {
   try {
-    const { amount, userId,items  } = req.body;
+    const { amount, userId, items } = req.body;
 
     const options = {
       amount: amount * 100,
@@ -34,11 +35,11 @@ export const createRazorpayOrder = async (req, res) => {
       dbOrderId: order._id,
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Order creation failed", error: err.message });
+    next(new CustomError(err.message || "Order creation failed", 500));
   }
 };
 
-export const verifyPayment = async (req, res) => {
+export const verifyPayment = async (req, res, next) => {
   try {
     const { orderId, paymentId, signature, userId } = req.body;
 

@@ -1,3 +1,4 @@
+import 'package:client/features/orderHistory/presentation/screens/student_order_screen.dart';
 import 'package:client/features/recommendations/presentation/screens/recommendation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,10 +25,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const HomeScreenContent(),
-      const Center(
-        child: Text('Notifications', style: TextStyle(color: Colors.white)),
-      ),
+      const HomeScreenContent(), // CHANGED
+      const StudentOrdersScreen(),
       const FavoritesScreen(),
       const ProfileScreen(),
     ];

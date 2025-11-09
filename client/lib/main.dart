@@ -20,6 +20,7 @@ void main() async {
   }
   
   await Hive.openBox<SessionModel>(_sessionBoxName);
+  await Hive.openBox("menu_cache");
 
   runApp(const ProviderScope(child: MyApp()));
 }

@@ -1,8 +1,9 @@
 import axios from "axios";
+import CustomError from "../utils/customError.js";
 
 const CHATBOT_MODEL_URL = "https://canteen-chatbot-api.onrender.com/chat";
 
-export const getChatbotResponse = async (req, res) => {
+export const getChatbotResponse = async (req, res, next) => {
   try {
     const { user_query } = req.body;
 
@@ -18,7 +19,7 @@ export const getChatbotResponse = async (req, res) => {
       { user_query },
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 30000,
+        timeout: 10*60000,  // 10 minutes timeout
       }
     );
 

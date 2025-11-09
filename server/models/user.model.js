@@ -30,8 +30,16 @@ const userSchema = new Schema(
     },
     orders: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'Orders',
+        orderId: { type: Schema.Types.ObjectId, ref: 'Orders' },
+    items: [
+      {
+        itemId: { type: Schema.Types.ObjectId, ref: 'MenuItem' },
+        name: String,
+        quantity: Number,
+        price: Number
+      }
+    ],
+    totalAmount: Number
       },
     ],
   },
