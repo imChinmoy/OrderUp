@@ -7,6 +7,7 @@ import 'package:client/core/api_endpoints.dart';
 abstract class MenuService {
   Future<List<MenuItemModel>> fetchMenuItems();
   Future<List<MenuItemModel>> fetchTrendingMenuItems();
+  Future<List<MenuItemModel>> fetchAvailableMenuItems();
 }
 
 class MenuServiceImpl implements MenuService {
@@ -35,24 +36,45 @@ class MenuServiceImpl implements MenuService {
     }
   }
 
-  @override
-  Future<List<MenuItemModel>> fetchTrendingMenuItems() async {
-    final session = await HiveSessionStorage().getSession();
-    final token = session?.token ?? "";
+@override
+Future<List<MenuItemModel>> fetchTrendingMenuItems() async {
+  final session = await HiveSessionStorage().getSession();
+  final token = session?.token ?? "";
 
-    final response = await client.get(
-      Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.menu}'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+  final response = await client.get(
+    Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.trending}'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => MenuItemModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load trending items');
-    }
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonList = json.decode(response.body);
+    return jsonList.map((json) => MenuItemModel.fromJson(json)).toList();
+  } else {
+    throw Exception('Failed to load trending items');
   }
+}
+@override
+Future<List<MenuItemModel>> fetchAvailableMenuItems() async {
+  final session = await HiveSessionStorage().getSession();
+  final token = session?.token ?? "";
+
+  final response = await client.get(
+    Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.availableItems}'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonList = json.decode(response.body);
+    return jsonList.map((json) => MenuItemModel.fromJson(json)).toList();
+  } else {
+    throw Exception('Failed to load trending items');
+  }
+}
+
 }

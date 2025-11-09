@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:client/features/order/data/models/cart_item.dart';
 import 'package:client/features/order/presentation/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +20,13 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
   bool isFavorite = false;
   bool addedSuccess = false;
 
-  final bool hardcodedStockAvailable = true;
 
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
+    log(widget.item.isAvailable.toString());
+    log(widget.item.name.toString());
+
 
     return Scaffold(
       backgroundColor: const Color(0xFF16161F),
@@ -180,6 +184,7 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
   }
 
   Widget _buildImageSection() {
+    final bool isAvailable = widget.item.isAvailable ? true : false ;
     return Container(
       margin: const EdgeInsets.all(16),
       height: 280,
@@ -211,7 +216,7 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: hardcodedStockAvailable
+                color: isAvailable
                     ? Colors.green.withOpacity(0.9)
                     : Colors.red.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(20),
@@ -220,13 +225,13 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    hardcodedStockAvailable ? Icons.check_circle : Icons.cancel,
+                    isAvailable ? Icons.check_circle : Icons.cancel,
                     color: Colors.white,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    hardcodedStockAvailable ? "In Stock" : "Out of Stock",
+                    isAvailable ? "In Stock" : "Out of Stock",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
@@ -509,6 +514,7 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
   }
 
   Widget _buildBottomOrderBar() {
+    final bool isAvailable = widget.item.isAvailable ? true : false ;
     return Positioned(
       bottom: 0,
       left: 0,
@@ -562,13 +568,13 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: hardcodedStockAvailable
+                      colors: isAvailable
                           ? [const Color(0xFFFF6B35), const Color(0xFFFF8C42)]
                           : [Colors.grey, Colors.grey],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
-                      if (hardcodedStockAvailable)
+                      if (isAvailable)
                         BoxShadow(
                           color: Colors.deepOrange.withOpacity(0.4),
                           blurRadius: 15,
@@ -580,7 +586,7 @@ class _FoodDetailScreenState extends ConsumerState<FoodDetailScreen> {
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
-                      onTap: hardcodedStockAvailable ? _addToCart : null,
+                      onTap: isAvailable ? _addToCart : null,
                       child: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Row(

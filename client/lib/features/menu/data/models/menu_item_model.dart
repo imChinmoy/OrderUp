@@ -8,6 +8,7 @@ class MenuItemModel extends MenuItemEntity {
     required double price,
     required String imageUrl,
     bool isTrending = false,
+    required bool isAvailable,
     required String? category,
   }) : super(
          id: id,
@@ -16,6 +17,7 @@ class MenuItemModel extends MenuItemEntity {
          price: price,
          imageUrl: imageUrl,
          isTrending: isTrending,
+         isAvailable: isAvailable,
        );
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class MenuItemModel extends MenuItemEntity {
       price: (json['price'] as num).toDouble(),
       imageUrl: json['imageUrl'],
       isTrending: json['isTrending'] ?? false,
+      isAvailable: json['isAvailable'] ?? false,
       category: json['category'],
     );
   }
@@ -38,6 +41,7 @@ class MenuItemModel extends MenuItemEntity {
       'price': price,
       'imageUrl': imageUrl,
       'isTrending': isTrending,
+      'isAvailable': isAvailable,
       'category': category,
     };
   }

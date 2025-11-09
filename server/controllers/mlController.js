@@ -1,81 +1,42 @@
 import axios from "axios";
 import CustomError from "../utils/customError.js";
 
-const ML_MODEL_URL = "https://recommend-88ef.onrender.com/predict";
+const ML_MODEL_URL = process.env.ML_MODEL_URL;
 
-export const getTop10Recommendations = async (req, res, next) => {
+export const getRecommendations = async (req, res, next) => {
   try {
     const { Category, Group_Size, Rating, Avg_Spend, Delivery_Time } = req.body;
 
-    const groupSize = Number(Group_Size);
-    const rating = Number(Rating);
-    const avgSpend = Number(Avg_Spend);
-    const deliveryTime = Number(Delivery_Time);
-
-    const validCategories = [
-      "Dessert",
-      "Drink",
-      "Fast Food",
-      "Main Course",
-      "Snack",
-    ];
-
-    if (!Category) {
-      throw new CustomError("Category is required", 400);
-    }
-    if (!validCategories.includes(Category)) {
-      throw new CustomError(
-        `Invalid Category. Must be one of: ${validCategories.join(", ")}`,
-        400
-      );
-    }
-    
-    if (avgSpend < 0 || avgSpend > 1000) {
-      throw new CustomError("Avg_Spend must be between 0 and 1000", 400);
+    if (!Category || Group_Size == null || Rating == null || Avg_Spend == null || Delivery_Time == null) {
+      throw new CustomError("All fields are required: Category, Group_Size, Rating, Avg_Spend, Delivery_Time", 400);
     }
 
-    if (groupSize < 1 || groupSize > 10) {
-      throw new CustomError("Group_Size must be between 1 and 10", 400);
-    }
-     
-    if (rating < 1 || rating > 5) {
-      throw new CustomError("Rating must be between 1 and 5", 400);
-    }
+    const payload = {
+      Category,
+      Group_Size,
+      Rating,
+      Avg_Spend,
+      Delivery_Time
+    };
 
-    if (deliveryTime < 0 || deliveryTime > 30) {
-      throw new CustomError("Delivery_Time must be between 0 and 30 minutes", 400);
-    }
-
-    const response = await axios.post(
-      ML_MODEL_URL,
-      {  Category, Group_Size, Rating, Avg_Spend, Delivery_Time},
-      {
-        headers: { "Content-Type": "application/json" },
-        timeout: 10*60000, // 10 minutes timeout
-      }
-    );
+    const response = await axios.post(ML_MODEL_URL, payload, {
+      headers: { "Content-Type": "application/json" },
+      timeout: 1000 * 60 * 2
+    });
 
     return res.status(200).json({
       success: true,
       recommendations: response.data,
     });
+
   } catch (error) {
     console.error("🔴 ML model request failed:", error);
 
-    // 🧠 Preserve real ML or validation messages
-    const mlErrorMessage =
-      error.response?.data?.message ||
-      error.message ||
-      "Failed to connect to ML service. Please try again later.";
+    if (error.response) {
+      return next(new CustomError(error.response.data.error || "ML service error", error.response.status));
+    }
 
-    // Detect if it's a user-facing validation error
-    const isClientError =
-      error.response?.status === 400 ||
-      mlErrorMessage.includes("must") ||
-      mlErrorMessage.includes("invalid");
-
-    const statusCode = isClientError ? 400 : 500;
-    next(new CustomError(mlErrorMessage, statusCode));
+    return next(new CustomError("Failed to connect to ML service", 502));
   }
 };
 

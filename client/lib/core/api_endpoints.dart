@@ -17,6 +17,7 @@ class ApiEndpoints {
   // 🍽️ MENU ENDPOINTS
   static const String menu = "/items";
   static const String trending = "/items/trending";
+  static const String availableItems = "/items/available";
 
   // For fetching menu item by ID
   static String menuById(String id) => "/menu/$id";
