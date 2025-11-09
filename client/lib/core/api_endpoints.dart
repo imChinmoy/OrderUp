@@ -3,6 +3,7 @@ class ApiConfig {
   static const String devBaseUrl = "http://localhost:3000/api";
   static const String stagingBaseUrl = "https://staging.yourapi.com/api";
   static const String prodBaseUrl = "https://orderup-3xkw.onrender.com/api";
+  static const String socketUrl = "https://orderup-3xkw.onrender.com";
 
   static const String baseUrl = prodBaseUrl; 
 }

@@ -11,7 +11,7 @@ class StudentOrderSocketDataSource {
     if (_socket != null && _socket!.connected) return;
 
     _socket = IO.io(
-      ApiConfig.baseUrl.replaceAll("/api", ""),
+      ApiConfig.socketUrl,
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()

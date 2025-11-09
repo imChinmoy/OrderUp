@@ -23,6 +23,8 @@ const itemSchema = new mongoose.Schema(
   },
   items: [itemSchema],
   totalAmount: { type: Number, required: true },
+  razorpayOrderId: { type: String },  // 👈 add this
+  paymentId: { type: String },
   status: {
     type: String,
     enum: ["received", "preparing", "ready", "delivered", "cancelled"],

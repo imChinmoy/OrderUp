@@ -27,3 +27,23 @@ class SessionModel {
 
   safeDecodeUser() {}
 }
+extension SafeUserDecode on SessionModel {
+  Map<String, dynamic>? safeDecodeUser() {
+    try {
+      if (user.isEmpty) return null;
+
+      dynamic firstDecode = jsonDecode(user);
+      if (firstDecode is String) {
+        firstDecode = jsonDecode(firstDecode);
+      }
+
+      if (firstDecode is Map<String, dynamic>) {
+        return firstDecode;
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+}
