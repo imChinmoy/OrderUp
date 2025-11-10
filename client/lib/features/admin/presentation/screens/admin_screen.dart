@@ -24,25 +24,45 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   int _tabIndex = 0;
   String adminName = "";
   String adminEmail = "";
+  String adminRole = "";
   bool loadingUser = true;
+
+  final HiveSessionStorage _sessionStorage = HiveSessionStorage();
 
   @override
   void initState() {
     super.initState();
-    _loadAdmin();
+    _loadAdminData();
   }
 
-  Future<void> _loadAdmin() async {
-    final session = await HiveSessionStorage().getSession();
-    if (session != null && session.user.isNotEmpty) {
-      final parsed = session.safeDecodeUser();
+  Future<void> _loadAdminData() async {
+    setState(() {
+      loadingUser = true;
+    });
+
+    try {
+      final SessionModel? session = await _sessionStorage.getSession();
+      if (session != null && session.user.isNotEmpty) {
+        dynamic userData = jsonDecode(session.user);
+        if (userData is String) {
+          userData = jsonDecode(userData);
+        }
+
+        setState(() {
+          adminName = userData['name'] ?? 'Admin';
+          adminEmail = userData['email'] ?? 'admin@example.com';
+          adminRole = userData['role'] ?? 'Administrator';
+          loadingUser = false;
+        });
+      } else {
+        setState(() {
+          loadingUser = false;
+        });
+      }
+    } catch (e) {
       setState(() {
-        adminName = parsed['name'] ?? "Admin";
-        adminEmail = parsed['email'] ?? "admin@gmail.com";
         loadingUser = false;
       });
-    } else {
-      setState(() => loadingUser = false);
     }
   }
 
@@ -89,7 +109,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     
-    // Responsive sizing based on screen dimensions
     final avatarRadius = screenWidth < 360 ? 20.0 : 24.0;
     final settingsRadius = screenWidth < 360 ? 18.0 : 20.0;
     final titleFontSize = screenWidth < 360 ? 14.0 : 16.0;
@@ -106,7 +125,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row with avatar and settings
           Row(
             children: [
               Container(
@@ -169,7 +187,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
 
           SizedBox(height: screenHeight < 700 ? 16 : 20),
 
-          // Greeting section
           ShaderMask(
             shaderCallback: (bounds) => LinearGradient(
               colors: [Colors.white, Colors.white.withOpacity(0.9)],

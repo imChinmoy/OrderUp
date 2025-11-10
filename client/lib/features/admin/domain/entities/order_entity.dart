@@ -7,6 +7,7 @@ class OrderEntity {
   final String status;
   final String paymentStatus;
   final DateTime createdAt;
+  final String? qrCode;
 
   OrderEntity({
     required this.id,
@@ -17,6 +18,7 @@ class OrderEntity {
     required this.status,
     required this.paymentStatus,
     required this.createdAt,
+    this.qrCode,
   });
 }
 

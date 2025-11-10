@@ -1,3 +1,5 @@
+import 'package:client/features/admin/data/models/order_model.dart';
+
 import '../entities/payment_order_entity.dart';
 
 abstract class PaymentRepository {
@@ -6,7 +8,7 @@ abstract class PaymentRepository {
     required String userId,
   });
 
-  Future<bool> verifyPayment({
+  Future<OrderModel?> verifyPayment({
     required String razorpayOrderId,
     required String razorpayPaymentId,
     required String razorpaySignature,

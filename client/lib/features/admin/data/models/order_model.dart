@@ -9,6 +9,7 @@ class OrderModel {
   final String status;
   final String paymentStatus;
   final DateTime createdAt;
+  final String? qrCode;
 
   OrderModel({
     required this.id,
@@ -19,6 +20,7 @@ class OrderModel {
     required this.paymentStatus,
     required this.createdAt,
     this.userName,
+    this.qrCode,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class OrderModel {
       status: json['status']?.toString() ?? 'received',
       paymentStatus: json['paymentStatus']?.toString() ?? 'pending',
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      qrCode: json['pickupQRCode']?.toString(),
     );
   }
 
@@ -47,6 +50,7 @@ class OrderModel {
         status: status,
         paymentStatus: paymentStatus,
         createdAt: createdAt,
+        qrCode: qrCode,
       );
 }
 

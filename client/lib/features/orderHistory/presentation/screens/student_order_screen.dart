@@ -1,5 +1,6 @@
 import 'package:client/features/admin/domain/entities/order_entity.dart';
 import 'package:client/features/orderHistory/presentation/providers/student_order_provider.dart';
+import 'package:client/utils/student_qr_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:client/core/widgets/floating_background_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -97,154 +98,156 @@ class StudentOrdersScreen extends ConsumerWidget {
     final statusColor = _statusColor(o.status);
     final formatter = DateFormat('dd MMM, hh:mm a');
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // First Item Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                o.items?.isNotEmpty == true ? o.items!.first.imageUrl : '',
-                width: 64,
-                height: 64,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 64,
-                    height: 64,
-                    color: Colors.white.withOpacity(0.1),
-                    child: const Icon(
-                      Icons.fastfood,
-                      color: Colors.white54,
-                      size: 28,
-                    ),
-                  );
-                },
-              ),
+    return GestureDetector(
+      onTap: () {
+        if (o.status == "ready" && o.qrCode != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => StudentPickupQRScreen(qrValue: o.qrCode!),
             ),
-            const SizedBox(width: 12),
-
-            // Order Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Order ID: ${(o.id).substring(0, 8).toUpperCase()}',
-                    //SHORTENS the Order ID to 0 digits
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  // Order Items List
-                  if (o.items != null)
-                    ...o.items!.map(
-                      (item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(top: 4),
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 80, 228, 50),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${item.quantity} x',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                item.name,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+          );
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  o.items?.isNotEmpty == true ? o.items!.first.imageUrl : '',
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 64,
+                      height: 64,
+                      color: Colors.white.withOpacity(0.1),
+                      child: const Icon(
+                        Icons.fastfood,
+                        color: Colors.white54,
+                        size: 28,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Order ID: ${(o.id).substring(0, 8).toUpperCase()}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 6),
+                    if (o.items != null)
+                      ...o.items!.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(top: 4),
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 80, 228, 50),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${item.quantity} x',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  item.name,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 8),
 
-                  // Order Date
-                  Text(
-                    'Order placed on ${formatter.format(o.createdAt ?? DateTime.now())}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withOpacity(0.4),
+                    Text(
+                      'Order placed on ${formatter.format(o.createdAt ?? DateTime.now())}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.white.withOpacity(0.4),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
+                    const SizedBox(height: 2),
 
-                  // Status
+                    Text(
+                      o.status.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: statusColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, size: 20),
+                    color: Colors.white.withOpacity(0.4),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {},
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    o.status.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: statusColor,
-                      fontWeight: FontWeight.w500,
+                    '₹${o.totalAmount}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.deepOrange,
                     ),
                   ),
                 ],
               ),
-            ),
-
-            // Price and Menu
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.more_vert, size: 20),
-                  color: Colors.white.withOpacity(0.4),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    // Add your menu options here
-                  },
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '₹${o.totalAmount}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.deepOrange,
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
