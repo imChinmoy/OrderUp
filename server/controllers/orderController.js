@@ -110,3 +110,28 @@ export const deleteOrder = async (req, res, next) => {
     next(new CustomError(error.message || "Error deleting order", 500));
   }
 };
+
+export const verifyQR = async ( req, res) => {
+ try {
+    const { qr , userId} = req.body;
+
+    if (!qr) return res.status(400).json({ success: false, message: "QR missing" });
+
+    const order = await Order.findOne({ pickupQRCode: qr });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Invalid QR" });
+    }
+
+    order.status = "delivered";
+    order.pickupQRCode = null;
+    order.updatedAt = Date.now();
+    await order.save();
+
+    io.to(`user:${userId}`).emit("orderUpdated", order);
+    io.to("admins").emit("orderUpdated", order);
+
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+}

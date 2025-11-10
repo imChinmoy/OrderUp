@@ -23,11 +23,11 @@ class RecommendationItemModel {
 
   factory RecommendationItemModel.fromJson(Map<String, dynamic> json) {
     return RecommendationItemModel(
-      id: json['id'],
-      name: json['name'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
       description: json['description'] ?? '',
-      price: (json['price'] as num).toDouble(),
-      rating: (json['rating'] as num).toDouble(),
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       deliveryTime: json['deliveryTime'] ?? 20,
       imageUrl: json['imageUrl'] ?? "",
       category: json['category'] ?? "",
@@ -35,16 +35,15 @@ class RecommendationItemModel {
   }
 
   RecommendationEntity toEntity() {
-  return RecommendationEntity(
-    id: id,
-    name: name,
-    description: description,
-    price: price,
-    rating: rating,
-    deliveryTime: deliveryTime,
-    imageUrl: imageUrl,
-    category: category,
-  );
-}
-
+    return RecommendationEntity(
+      id: id,
+      name: name,
+      description: description,
+      price: price,
+      rating: rating,
+      deliveryTime: deliveryTime,
+      imageUrl: imageUrl,
+      category: category,
+    );
+  }
 }

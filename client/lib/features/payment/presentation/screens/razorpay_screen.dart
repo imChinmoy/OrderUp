@@ -1,5 +1,7 @@
+import 'package:client/features/admin/presentation/providers/order_socket_provider.dart';
 import 'package:client/features/order/presentation/providers/cart_provider.dart';
 import 'package:client/features/order/presentation/screens/order_success_screen.dart';
+import 'package:client/features/orderHistory/presentation/providers/student_order_provider.dart';
 import 'package:client/features/payment/presentation/providers/payment_provider.dart';
 import 'package:client/features/profile/features/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
@@ -111,9 +113,9 @@ class _RazorpayScreenState extends ConsumerState<RazorpayScreen> {
 
     if (ok) {
       ref.read(cartProvider.notifier).clear();
-
-      await Future.delayed(const Duration(milliseconds: 800));
-
+      await Future.delayed(const Duration(milliseconds: 300));
+      ref.invalidate(studentOrdersStreamProvider);
+      ref.invalidate(adminOrdersStreamProvider);
       /* Navigator.pushReplacement(
         context,
       //  MaterialPageRoute(

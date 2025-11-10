@@ -15,7 +15,6 @@ class RecommendationServiceImpl implements RecommendationService {
   RecommendationServiceImpl(this.client);
 
   @override
-  @override
   Future<List<RecommendationItemModel>> getRecommendations(
     Map<String, dynamic> params,
   ) async {
@@ -45,22 +44,12 @@ class RecommendationServiceImpl implements RecommendationService {
 
     final decoded = jsonDecode(response.body);
 
-    final rec = decoded["recommendations"];
-    if (rec == null || rec["Top_Items"] == null) return [];
+    if (decoded["success"] == true && decoded["recommendations"] is List) {
+      return (decoded["recommendations"] as List)
+          .map((e) => RecommendationItemModel.fromJson(e))
+          .toList();
+    }
 
-    final items = rec["Top_Items"] as List;
-
-    return items.map((item) {
-      return RecommendationItemModel(
-        id: item["Item_Name"],
-        name: item["Item_Name"],
-        description: "Recommended drink based on your preference",
-        price: item["price"]?.toDouble() ?? 0.0,
-        rating: item["prob"] * 5,
-        deliveryTime: 20,
-        imageUrl: item["imageUrl"] ?? "",
-        category: rec["Category"],
-      );
-    }).toList();
+    throw Exception("Invalid format: $decoded");
   }
 }

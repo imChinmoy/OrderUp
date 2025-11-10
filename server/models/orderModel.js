@@ -23,7 +23,7 @@ const orderSchema = new mongoose.Schema({
   
   razorpayOrderId: { type: String },
   paymentId: { type: String },
-
+  pickupQRCode: { type: String }, 
   status: {
     type: String,
     enum: ["received", "preparing", "ready", "delivered", "cancelled"],

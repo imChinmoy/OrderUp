@@ -68,6 +68,8 @@ export const verifyPayment = async (req, res, next) => {
       });
     }
 
+    const qrCode = crypto.randomUUID(); 
+
     const updated = await Order.findOneAndUpdate(
       { razorpayOrderId: orderId },
       {
@@ -76,6 +78,7 @@ export const verifyPayment = async (req, res, next) => {
         items,
         totalAmount,
         status: "received",
+        pickupQRCode: qrCode,
         updatedAt: Date.now(),
       },
       { new: true }
