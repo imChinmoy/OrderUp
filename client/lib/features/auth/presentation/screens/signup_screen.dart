@@ -46,7 +46,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       'password': _passwordController.text.trim(),
       'name': _nameController.text.trim(),
       'role': _selectedRole,
-      if (_selectedRole == 'admin') 'secretKey': _secretKeyController.text.trim(),
+      if (_selectedRole == 'admin') 'adminSecret': _secretKeyController.text.trim(),
     };
     ref.read(signupParamsProvider.notifier).state = params;
   }

@@ -52,6 +52,7 @@ final registerProvider =
           password: params['password']!,
           name: params['name']!,
           role: params['role']!,
+          adminSecret: params['adminSecret'],
         );
       } finally {
         client.close();

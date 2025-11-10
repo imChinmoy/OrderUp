@@ -28,13 +28,15 @@ class UserRepoImpl implements UserRepo {
     String email,
     String password,
     String name,
-    String role,
-  ) async {
+    String role,{
+    String? adminSecret,
+  }) async {
     final userModel = await _serverData.register(
       email: email,
       password: password,
       name: name,
       role: role,
+      adminSecret: adminSecret,
     );
     final session = SessionModel(token: userModel.token, user: userModel.user);
     

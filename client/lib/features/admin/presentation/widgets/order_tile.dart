@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:client/utils/qr_scan_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -14,100 +15,111 @@ class OrderTile extends ConsumerWidget {
     final formattedAmount = formatter.format(order.totalAmount ?? 0);
     final statusColor = _statusColor(order.status);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // First Item Image
-            _firstItemImage(),
-            const SizedBox(width: 12),
-
-            // Order Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Order ID
-                  Text(
-                    'Order ID: ${(order.id ?? '').substring(0, 8).toUpperCase()}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  
-                  // Customer Name
-                  Text(
-                    'Customer: ${order.userName ?? 'Unknown'}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  
-                  // Order Items List
-                  _itemsList(),
-                  const SizedBox(height: 8),
-
-                  // Order Date
-                  Text(
-                    'Order placed on ${_formatDate(order.createdAt)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withOpacity(0.4),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-
-                  // Status
-                  Text(
-                    order.status.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: statusColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Price and Action Button
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  formattedAmount,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.deepOrange,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _statusButton(ref),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const QRScanScreen(),
+        ),
+    );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // First Item Image
+              _firstItemImage(),
+              const SizedBox(width: 12),
+      
+              // Order Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Order ID
+                    Text(
+                      'Order ID: ${(order.id ?? '').substring(0, 8).toUpperCase()}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    
+                    // Customer Name
+                    Text(
+                      'Customer: ${order.userName ?? 'Unknown'}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // Order Items List
+                    _itemsList(),
+                    const SizedBox(height: 8),
+      
+                    // Order Date
+                    Text(
+                      'Order placed on ${_formatDate(order.createdAt)}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.white.withOpacity(0.4),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+      
+                    // Status
+                    Text(
+                      order.status.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: statusColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+      
+              // Price and Action Button
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    formattedAmount,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.deepOrange,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // _statusButton(ref),
+                  const Icon(Icons.camera_alt_outlined, color: Colors.blueAccent, size: 30),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -203,21 +215,21 @@ class OrderTile extends ConsumerWidget {
         label = "Accept";
         accent = Colors.blue;
         break;
-      case "accepted":
-        nextStatus = "preparing";
-        label = "Cooking";
-        accent = Colors.orange;
-        break;
-      case "preparing":
-        nextStatus = "ready";
-        label = "Ready";
-        accent = Colors.green;
-        break;
+      // case "accepted":
+      //   nextStatus = "preparing";
+      //   label = "Cooking";
+      //   accent = Colors.orange;
+      //   break;
+      // case "preparing":
+      //   nextStatus = "ready";
+      //   label = "Ready";
+      //   accent = Colors.green;
+      //   break;
       case "ready":
         nextStatus = "delivered";
-        label = "Deliver";
+        label = "Scan Or";
         accent = Colors.purple;
-        break;
+        break;  
       default:
         return const Text(
           "Completed",

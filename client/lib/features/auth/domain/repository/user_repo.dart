@@ -7,7 +7,9 @@ abstract class UserRepo {
     String email,
     String password,
     String name,
-    String role,
+    String role,{
+    String? adminSecret,                      
+  }
   );
   
   String? getToken();

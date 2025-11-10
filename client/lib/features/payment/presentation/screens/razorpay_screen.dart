@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:client/features/admin/presentation/providers/order_socket_provider.dart';
 import 'package:client/features/order/presentation/providers/cart_provider.dart';
 import 'package:client/features/order/presentation/screens/order_success_screen.dart';
@@ -94,7 +96,7 @@ class _RazorpayScreenState extends ConsumerState<RazorpayScreen> {
     final cart = ref.read(cartProvider);
 
     final verify = ref.read(verifyPaymentProvider);
-    final ok = await verify(
+    final updatedOrder = await verify(
       razorpayOrderId: res.orderId!,
       razorpayPaymentId: res.paymentId!,
       razorpaySignature: res.signature!,
@@ -111,18 +113,19 @@ class _RazorpayScreenState extends ConsumerState<RazorpayScreen> {
       totalAmount: widget.totalAmount,
     );
 
-    if (ok) {
+    if (updatedOrder != null && updatedOrder.qrCode != null) {
       ref.read(cartProvider.notifier).clear();
       await Future.delayed(const Duration(milliseconds: 300));
       ref.invalidate(studentOrdersStreamProvider);
       ref.invalidate(adminOrdersStreamProvider);
+      log(updatedOrder.qrCode.toString());
       /* Navigator.pushReplacement(
         context,
       //  MaterialPageRoute(
           builder: (_) => OrderSuccessScreen(totalAmount: widget.totalAmount),
         ),
       ); */
-      context.go('/order-success', extra: widget.totalAmount);
+      context.go('/order-success', extra: {"amount": widget.totalAmount, "qr": updatedOrder.qrCode });
     } else {
       _toast('Payment verification failed');
     }

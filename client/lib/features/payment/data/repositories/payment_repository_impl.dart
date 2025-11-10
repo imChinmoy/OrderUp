@@ -1,3 +1,4 @@
+import 'package:client/features/admin/data/models/order_model.dart';
 import 'package:client/features/payment/data/datasource/payment_remote_datasource.dart';
 
 import '../../domain/entities/payment_order_entity.dart';
@@ -19,7 +20,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<bool> verifyPayment({
+  Future<OrderModel?> verifyPayment({
     required String razorpayOrderId,
     required String razorpayPaymentId,
     required String razorpaySignature,

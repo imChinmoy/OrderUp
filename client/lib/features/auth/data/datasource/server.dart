@@ -43,18 +43,26 @@ class ServerData {
     required String password,
     required String name,
     required String role,
+    String? adminSecret,
   }) async {
     try {
+
+      final body = {
+        'email': email,
+        'password': password,
+        'name': name,
+        'role': role,
+      };
+
+      if (adminSecret != null && role == "admin") {
+        body['adminSecret'] = adminSecret;
+      }
       final res = await client.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiEndpoints.signup}'),
         headers: {'Content-type': 'application/json'},
-        body: json.encode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': role,
-        }),
-      );
+        body: jsonEncode(body)
+        ) ;
+        
       if (res.statusCode == 201) {
         final data = SessionModel.fromJson(json.decode(res.body));
         await HiveSessionStorage().saveSession(

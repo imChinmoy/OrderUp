@@ -1,10 +1,12 @@
+import 'package:client/features/admin/data/models/order_model.dart';
+
 import '../repositories/payment_repository.dart';
 
 class VerifyPayment {
   final PaymentRepository repo;
   VerifyPayment(this.repo);
 
-  Future<bool> call({
+  Future<OrderModel?> call({
     required String razorpayOrderId,
     required String razorpayPaymentId,
     required String razorpaySignature,

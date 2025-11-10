@@ -151,8 +151,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/order-success',
         name: 'order-success',
         builder: (context, state) {
-          final totalAmount = state.extra as double;
-          return OrderSuccessScreen(totalAmount: totalAmount);
+          final data = state.extra as Map<String, dynamic>;
+          final amount = data["amount"] as double;
+          final qr = data["qr"] as String?;
+
+        return OrderSuccessScreen(
+          totalAmount: amount,
+          qrCode: qr,
+        );
         },
       ),
 

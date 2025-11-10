@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:client/core/api_endpoints.dart';
+import 'package:client/features/admin/data/models/order_model.dart';
 import 'package:client/features/auth/data/datasource/hive_session_storage.dart';
 import 'package:client/features/payment/domain/entities/payment_order_entity.dart';
 import 'package:http/http.dart' as http;
@@ -38,7 +39,7 @@ class PaymentRemoteDataSource {
     );
   }
 
-  Future<bool> verifyPayment({
+  Future<OrderModel?> verifyPayment({
     required String razorpayOrderId,
     required String razorpayPaymentId,
     required String razorpaySignature,
@@ -63,9 +64,11 @@ class PaymentRemoteDataSource {
       }),
     );
 
-    if (res.statusCode != 200) return false;
-
     final data = jsonDecode(res.body);
-    return data['success'] == true;
+      if (data['success'] == true && data['order'] != null) {
+      return OrderModel.fromJson(data['order']);  
+    }
+    return null;
+
   }
 }
