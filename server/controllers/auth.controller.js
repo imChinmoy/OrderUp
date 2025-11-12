@@ -3,9 +3,12 @@ import User from '../models/user.model.js';
 import validator from 'validator';
 import CustomError from '../utils/customError.js'; // your custom error class
 import sendVerificationEmail from "../utils/sendVerificationEmail.js";
+import sendResetPasswordEmail from "../utils/sendResetPasswordEmail.js";
+import sgMail from "@sendgrid/mail";
 import crypto from "crypto";
 import dotenv from 'dotenv';
 dotenv.config();
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 const generateToken = (user) => {
@@ -124,10 +127,6 @@ export const loginHandler = async (req, res, next) => {
       throw new CustomError('Invalid credentials.', 400);
     }
 
-        if (!validator.isEmail(email)) {
-  throw new CustomError('Invalid email format.', 400);
-}
-
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       throw new CustomError('Invalid credentials.', 400);
@@ -144,6 +143,61 @@ export const loginHandler = async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPasswordHandler = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new CustomError("No user found with this email.", 404);
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    await sendResetPasswordEmail(user.email, resetToken);
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset link sent to your email.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPasswordHandler = async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    const { newPassword } = req.body;
+    console.log("Token from query:", req.query.token);
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      throw new CustomError("Invalid or expired password reset token.", 400);
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful. You can now log in with your new password.",
     });
   } catch (error) {
     next(error);

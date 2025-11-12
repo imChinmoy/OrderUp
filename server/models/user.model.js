@@ -47,7 +47,10 @@ const userSchema = new Schema(
   default: false
   },
   verificationToken: String,
-  verificationTokenExpiry: Date,},
+  verificationTokenExpiry: Date,
+  resetPasswordToken: String,
+  resetPasswordExpiry: Date,
+},
   {
     timestamps: true,
   }

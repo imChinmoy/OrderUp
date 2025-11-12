@@ -12,6 +12,10 @@ import mlRoutes from "./routes/mlRoutes.js";
 import morgan from "morgan";
 import helmet from "helmet";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -41,6 +45,14 @@ export { io, server };
 app.use(helmet());
 app.use(express.json());
 app.use(morgan("dev"));
+// TEMP DEBUG - add near top and restart, then re-try curl
+app.use((req, res, next) => {
+  console.log(">>> DEBUG REQ:", req.method, req.originalUrl, "headers.authorization:", !!req.headers.authorization);
+  // also write a tiny marker header so we can see who responded
+  res.setHeader("X-Debug-Server", "OrderUp-Backend");
+  next();
+});
+
 app.disable("x-powered-by");
 
 app.use('/api/auth', authRouter);
@@ -51,6 +63,7 @@ app.use("/api/ml", mlRoutes);
 app.get("/error-test", (req, res, next) => {
   next(new Error("Testing centralized error handler"));
 });
+app.use(express.static(path.join(__dirname, "client/dist")));
 app.use(errorHandler);
 
 connectDB();
